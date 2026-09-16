@@ -701,6 +701,7 @@
             responsavel: valorDe('responsavel'),
             bairros_patrulhados: textoOuNulo(valorDe('bairros_patrulhados')),
             ocorrencias_atendidas: textoOuNulo(valorDe('ocorrencias_atendidas')),
+            autos_infracao_quantidade: numeroOuNulo(valorDe('autos_infracao_quantidade')),
             materiais_utilizados: textoOuNulo(valorDe('materiais_utilizados')),
             viatura_limpeza: valorDe('viatura_limpeza'),
             viatura_alteracoes: valorDe('viatura_alteracoes'),
@@ -724,6 +725,9 @@
         if (!p.equipe) return 'Selecione a equipe.';
         if (!p.responsavel) return 'Selecione o responsável.';
         if (!p.bairros_patrulhados) return 'Informe os bairros patrulhados.';
+        if (p.autos_infracao_quantidade !== null && p.autos_infracao_quantidade < 0) {
+            return 'A quantidade de autos de infração não pode ser negativa.';
+        }
         if (!p.viatura_limpeza) return 'Informe a limpeza da viatura.';
         if (!p.viatura_alteracoes) return 'Informe se foram encontradas alterações na viatura.';
         if (p.viatura_alteracoes === 'Com alterações' && !p.alteracoes_viaturas) {
@@ -753,6 +757,9 @@
         definirValor('responsavel', r.responsavel || '');
         definirValor('bairros_patrulhados', r.bairros_patrulhados || '');
         definirValor('ocorrencias_atendidas', r.ocorrencias_atendidas || '');
+        definirValor('autos_infracao_quantidade',
+            r.autos_infracao_quantidade === null || r.autos_infracao_quantidade === undefined
+                ? '' : r.autos_infracao_quantidade);
         definirValor('materiais_utilizados', r.materiais_utilizados || '');
         definirValor('viatura_limpeza', r.viatura_limpeza || '');
         definirValor('viatura_alteracoes', r.viatura_alteracoes || (r.alteracoes_viaturas ? 'Com alterações' : ''));
@@ -854,6 +861,8 @@
             item('Responsável', r.responsavel) +
             item('Status', r.status) +
             item('Assinatura', r.assinatura_responsavel) +
+            item('Autos de infração', r.autos_infracao_quantidade === null || r.autos_infracao_quantidade === undefined
+                ? '' : r.autos_infracao_quantidade) +
             item('Limpeza da viatura', r.viatura_limpeza) +
             item('Alterações na viatura', r.viatura_alteracoes) +
             item('Abastecimento', r.abastecimentos_realizados) +
@@ -948,6 +957,7 @@
                 { label: 'Equipe', valor: r.equipe },
                 { label: 'Responsável', valor: r.responsavel },
                 { label: 'Status', valor: r.status },
+                { label: 'Autos de infração', valor: r.autos_infracao_quantidade === null || r.autos_infracao_quantidade === undefined ? '' : r.autos_infracao_quantidade },
                 { label: 'Limpeza da viatura', valor: r.viatura_limpeza },
                 { label: 'Alterações na viatura', valor: r.viatura_alteracoes },
                 { label: 'Abastecimento', valor: r.abastecimentos_realizados },
@@ -989,6 +999,9 @@
         if (r.equipe) linhas.push('👥 *Equipe:* ' + r.equipe);
         if (r.responsavel) linhas.push('👤 *Responsável:* ' + r.responsavel);
         if (r.status) linhas.push('📌 *Status:* ' + r.status);
+        if (r.autos_infracao_quantidade !== null && r.autos_infracao_quantidade !== undefined && r.autos_infracao_quantidade !== '') {
+            linhas.push('🚨 *Autos de infração:* ' + r.autos_infracao_quantidade);
+        }
         if (r.viatura_limpeza) linhas.push('🧼 *Limpeza da viatura:* ' + r.viatura_limpeza);
         if (r.viatura_alteracoes) linhas.push('🔧 *Alterações na viatura:* ' + r.viatura_alteracoes);
         if (r.abastecimentos_realizados) linhas.push('⛽ *Abastecimento:* ' + r.abastecimentos_realizados);
