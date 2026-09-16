@@ -160,6 +160,19 @@
     margin-bottom: 0;
 }
 
+/* Grade genérica reaproveitável para pequenos agrupamentos de campos
+   dentro de uma seção (ex.: limpeza + alterações da viatura). */
+.mini-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: 12px 16px;
+    margin-top: 8px;
+}
+
+.mini-grid .form-group {
+    margin-bottom: 0;
+}
+
 .item-os-full {
     grid-column: 1 / -1;
 }

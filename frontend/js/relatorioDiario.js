@@ -55,6 +55,27 @@
 
         var campoStatus = document.getElementById('status');
         if (campoStatus && !campoStatus.value) campoStatus.value = 'Rascunho';
+
+        atualizarVisibilidadeAlteracoesViaturas();
+    }
+
+    // Mostra/oculta e alterna a obrigatoriedade do campo de descricao das
+    // alteracoes encontradas na viatura, conforme a opcao selecionada
+    // (mesmo padrao usado no campo "Motivo" de cada atividade por O.S.).
+    function atualizarVisibilidadeAlteracoesViaturas() {
+        var select = document.getElementById('viatura_alteracoes');
+        var grupo = document.getElementById('alteracoesViaturasDescricaoGrupo');
+        var campoDescricao = document.getElementById('alteracoes_viaturas_descricao');
+        if (!select || !grupo || !campoDescricao) return;
+
+        var comAlteracoes = select.value === 'Com alterações';
+        grupo.style.display = comAlteracoes ? 'block' : 'none';
+        if (comAlteracoes) {
+            campoDescricao.setAttribute('required', 'required');
+        } else {
+            campoDescricao.removeAttribute('required');
+            campoDescricao.value = '';
+        }
     }
 
     function configurarEventos() {
@@ -78,6 +99,9 @@
 
         document.getElementById('btnAdicionarItemOs')
             ?.addEventListener('click', function () { adicionarItem(); });
+
+        document.getElementById('viatura_alteracoes')
+            ?.addEventListener('change', atualizarVisibilidadeAlteracoesViaturas);
 
         var itensContainer = document.getElementById('itensOsContainer');
         if (itensContainer) {
@@ -678,7 +702,11 @@
             bairros_patrulhados: textoOuNulo(valorDe('bairros_patrulhados')),
             ocorrencias_atendidas: textoOuNulo(valorDe('ocorrencias_atendidas')),
             materiais_utilizados: textoOuNulo(valorDe('materiais_utilizados')),
-            alteracoes_viaturas: textoOuNulo(valorDe('alteracoes_viaturas')),
+            viatura_limpeza: valorDe('viatura_limpeza'),
+            viatura_alteracoes: valorDe('viatura_alteracoes'),
+            alteracoes_viaturas: valorDe('viatura_alteracoes') === 'Com alterações'
+                ? textoOuNulo(valorDe('alteracoes_viaturas_descricao'))
+                : null,
             abastecimentos_realizados: textoOuNulo(valorDe('abastecimentos_realizados')),
             observacoes: textoOuNulo(valorDe('observacoes')),
             status: valorDe('status'),
@@ -696,6 +724,11 @@
         if (!p.equipe) return 'Selecione a equipe.';
         if (!p.responsavel) return 'Selecione o responsável.';
         if (!p.bairros_patrulhados) return 'Informe os bairros patrulhados.';
+        if (!p.viatura_limpeza) return 'Informe a limpeza da viatura.';
+        if (!p.viatura_alteracoes) return 'Informe se foram encontradas alterações na viatura.';
+        if (p.viatura_alteracoes === 'Com alterações' && !p.alteracoes_viaturas) {
+            return 'Descreva as alterações encontradas na viatura.';
+        }
         if (!p.status) return 'Selecione o status do relatório.';
         if (!p.assinatura_responsavel) return 'Informe a assinatura do responsável.';
 
@@ -721,7 +754,10 @@
         definirValor('bairros_patrulhados', r.bairros_patrulhados || '');
         definirValor('ocorrencias_atendidas', r.ocorrencias_atendidas || '');
         definirValor('materiais_utilizados', r.materiais_utilizados || '');
-        definirValor('alteracoes_viaturas', r.alteracoes_viaturas || '');
+        definirValor('viatura_limpeza', r.viatura_limpeza || '');
+        definirValor('viatura_alteracoes', r.viatura_alteracoes || (r.alteracoes_viaturas ? 'Com alterações' : ''));
+        definirValor('alteracoes_viaturas_descricao', r.alteracoes_viaturas || '');
+        atualizarVisibilidadeAlteracoesViaturas();
         definirValor('abastecimentos_realizados', r.abastecimentos_realizados || '');
         definirValor('observacoes', r.observacoes || '');
         definirValor('status', r.status || '');
@@ -818,12 +854,16 @@
             item('Responsável', r.responsavel) +
             item('Status', r.status) +
             item('Assinatura', r.assinatura_responsavel) +
+            item('Limpeza da viatura', r.viatura_limpeza) +
+            item('Alterações na viatura', r.viatura_alteracoes) +
             '</div>' +
             blocoItensDetalhe(itensRelatorio) +
             bloco('Bairros patrulhados', r.bairros_patrulhados) +
             bloco('Ocorrências atendidas', r.ocorrencias_atendidas) +
             bloco('Materiais utilizados', r.materiais_utilizados) +
-            bloco('Alterações nas viaturas', r.alteracoes_viaturas) +
+            (r.viatura_alteracoes === 'Com alterações'
+                ? bloco('Descrição das alterações na viatura', r.alteracoes_viaturas)
+                : '') +
             bloco('Abastecimentos realizados', r.abastecimentos_realizados) +
             bloco('Observações', r.observacoes);
 
@@ -908,6 +948,8 @@
                 { label: 'Equipe', valor: r.equipe },
                 { label: 'Responsável', valor: r.responsavel },
                 { label: 'Status', valor: r.status },
+                { label: 'Limpeza da viatura', valor: r.viatura_limpeza },
+                { label: 'Alterações na viatura', valor: r.viatura_alteracoes },
             ]) + '</div>' +
             GML_PDF.blocoTabela('Atividades por Ordem de Serviço',
                 ['Nº da O.S.', 'Status', 'Atividade realizada', 'Qtd.', 'Unidade', 'Observações / Motivo'],
@@ -915,7 +957,9 @@
             GML_PDF.blocoTexto('Bairros patrulhados', r.bairros_patrulhados) +
             GML_PDF.blocoTexto('Ocorrências atendidas', r.ocorrencias_atendidas) +
             GML_PDF.blocoTexto('Materiais utilizados', r.materiais_utilizados) +
-            GML_PDF.blocoTexto('Alterações encontradas nas viaturas', r.alteracoes_viaturas) +
+            (r.viatura_alteracoes === 'Com alterações'
+                ? GML_PDF.blocoTexto('Descrição das alterações encontradas na viatura', r.alteracoes_viaturas)
+                : '') +
             GML_PDF.blocoTexto('Abastecimentos realizados', r.abastecimentos_realizados) +
             GML_PDF.blocoTexto('Observações', r.observacoes);
 
@@ -945,6 +989,8 @@
         if (r.equipe) linhas.push('👥 *Equipe:* ' + r.equipe);
         if (r.responsavel) linhas.push('👤 *Responsável:* ' + r.responsavel);
         if (r.status) linhas.push('📌 *Status:* ' + r.status);
+        if (r.viatura_limpeza) linhas.push('🧼 *Limpeza da viatura:* ' + r.viatura_limpeza);
+        if (r.viatura_alteracoes) linhas.push('🔧 *Alterações na viatura:* ' + r.viatura_alteracoes);
 
         function blocoTexto(titulo, texto) {
             if (!texto) return;
@@ -974,7 +1020,9 @@
         }
 
         blocoTexto('Materiais utilizados', r.materiais_utilizados);
-        blocoTexto('Alterações nas viaturas', r.alteracoes_viaturas);
+        if (r.viatura_alteracoes === 'Com alterações') {
+            blocoTexto('Descrição das alterações na viatura', r.alteracoes_viaturas);
+        }
         blocoTexto('Abastecimentos realizados', r.abastecimentos_realizados);
         blocoTexto('Observações', r.observacoes);
 
