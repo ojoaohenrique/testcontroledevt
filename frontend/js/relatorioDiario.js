@@ -856,6 +856,7 @@
             item('Assinatura', r.assinatura_responsavel) +
             item('Limpeza da viatura', r.viatura_limpeza) +
             item('Alterações na viatura', r.viatura_alteracoes) +
+            item('Abastecimento', r.abastecimentos_realizados) +
             '</div>' +
             blocoItensDetalhe(itensRelatorio) +
             bloco('Bairros patrulhados', r.bairros_patrulhados) +
@@ -864,7 +865,6 @@
             (r.viatura_alteracoes === 'Com alterações'
                 ? bloco('Descrição das alterações na viatura', r.alteracoes_viaturas)
                 : '') +
-            bloco('Abastecimentos realizados', r.abastecimentos_realizados) +
             bloco('Observações', r.observacoes);
 
         var btnPdf = document.getElementById('detalhePdfBtn');
@@ -950,6 +950,7 @@
                 { label: 'Status', valor: r.status },
                 { label: 'Limpeza da viatura', valor: r.viatura_limpeza },
                 { label: 'Alterações na viatura', valor: r.viatura_alteracoes },
+                { label: 'Abastecimento', valor: r.abastecimentos_realizados },
             ]) + '</div>' +
             GML_PDF.blocoTabela('Atividades por Ordem de Serviço',
                 ['Nº da O.S.', 'Status', 'Atividade realizada', 'Qtd.', 'Unidade', 'Observações / Motivo'],
@@ -960,7 +961,6 @@
             (r.viatura_alteracoes === 'Com alterações'
                 ? GML_PDF.blocoTexto('Descrição das alterações encontradas na viatura', r.alteracoes_viaturas)
                 : '') +
-            GML_PDF.blocoTexto('Abastecimentos realizados', r.abastecimentos_realizados) +
             GML_PDF.blocoTexto('Observações', r.observacoes);
 
         GML_PDF.gerar({
@@ -991,6 +991,7 @@
         if (r.status) linhas.push('📌 *Status:* ' + r.status);
         if (r.viatura_limpeza) linhas.push('🧼 *Limpeza da viatura:* ' + r.viatura_limpeza);
         if (r.viatura_alteracoes) linhas.push('🔧 *Alterações na viatura:* ' + r.viatura_alteracoes);
+        if (r.abastecimentos_realizados) linhas.push('⛽ *Abastecimento:* ' + r.abastecimentos_realizados);
 
         function blocoTexto(titulo, texto) {
             if (!texto) return;
@@ -1023,7 +1024,6 @@
         if (r.viatura_alteracoes === 'Com alterações') {
             blocoTexto('Descrição das alterações na viatura', r.alteracoes_viaturas);
         }
-        blocoTexto('Abastecimentos realizados', r.abastecimentos_realizados);
         blocoTexto('Observações', r.observacoes);
 
         if (r.assinatura_responsavel) {
