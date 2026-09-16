@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <script src="js/siteGate.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0056b3">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="description" content="GML - Relatório Diário da Guarda Municipal de Laguna">
+    <title>GML - Relatório Diário</title>
+
+    <script>
+        window.ENV_SUPABASE_URL = "https://ysrexztknpgrsoqioxjf.supabase.co";
+        window.ENV_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlzcmV4enRrbnBncnNvcWlveGpmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2NjYxMDAsImV4cCI6MjA4OTI0MjEwMH0.r52VrHZRmiAk5agdK5C54NNzAt8CyTkZvl8YSbffQW4";
+    </script>
+
+    <link rel="manifest" href="manifest.json" />
+    <link rel="apple-touch-icon" href="icons/icon-192x192.png">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/viaturas.css">
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/modulos.css">
+</head>
+
+<body>
+    <div class="container">
+        <div class="app-layout">
+            <aside class="sidebar" id="sidebar"></aside>
+
+            <div class="app-main">
+                <header id="headerUsuario"></header>
+
+                <main>
+                    <header class="topbar">
+                        <div class="topbar-left">
+                            <h1>📋 Relatório Diário</h1>
+                            <p>Registro diário das atividades operacionais da Guarda Municipal</p>
+                        </div>
+                        <div class="topbar-stats">
+                            <div class="stat-card">
+                                <span class="stat-label">Relatórios</span>
+                                <span class="stat-value" id="contadorRelatorios">0</span>
+                            </div>
+                        </div>
+                    </header>
+
+                    <datalist id="unidadesMedida">
+                        <option value="Unidade (UN)">
+                        <option value="Quilômetro (KM)">
+                        <option value="Litro (L)">
+                        <option value="Hora (H)">
+                        <option value="Ocorrência">
+                        <option value="Serviço">
+                        <option value="Diária">
+                    </datalist>
+
+                    <!-- ============ FORMULÁRIO ============ -->
+                    <div class="form-container" style="min-width:0;margin-bottom:24px;">
+                        <div class="header" id="formTitulo">Novo Relatório Diário</div>
+                        <form id="relatorioForm" novalidate>
+                            <input type="hidden" id="relatorioId">
+                            <input type="hidden" id="ordemServicoId">
+
+                            <div class="form-body">
+                                <div class="form-grid">
+                                    <div class="form-group">
+                                        <label for="data" class="required">Data</label>
+                                        <input type="date" id="data" name="data" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="turno" class="required">Turno</label>
+                                        <select id="turno" name="turno" required>
+                                            <option value="">Selecione...</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="equipe" class="required">Equipe</label>
+                                        <select id="equipe" name="equipe" required>
+                                            <option value="">Selecione...</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="responsavel" class="required">Responsável</label>
+                                        <select id="responsavel" name="responsavel" required>
+                                            <option value="">Selecione...</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="km_inicial" class="required">Quilometragem inicial</label>
+                                        <input type="number" id="km_inicial" name="km_inicial" min="0" step="0.1"
+                                            required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="km_final" class="required">Quilometragem final</label>
+                                        <input type="number" id="km_final" name="km_final" min="0" step="0.1" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="motoristas" class="required">Motoristas participantes</label>
+                                        <select id="motoristas" name="motoristas" multiple required></select>
+                                        <small>Segure Ctrl (ou Cmd) para selecionar vários.</small>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="viaturas_utilizadas" class="required">Viaturas utilizadas</label>
+                                        <select id="viaturas_utilizadas" name="viaturas_utilizadas" multiple
+                                            required></select>
+                                        <small>Segure Ctrl (ou Cmd) para selecionar várias.</small>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="status" class="required">Status do relatório</label>
+                                        <select id="status" name="status" required>
+                                            <option value="">Selecione...</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="assinatura_responsavel" class="required">Assinatura do
+                                            responsável</label>
+                                        <input type="text" id="assinatura_responsavel" name="assinatura_responsavel"
+                                            placeholder="Nome completo de quem assina" required>
+                                    </div>
+                                </div>
+
+                                <div class="form-group form-group-full-width">
+                                    <label for="bairros_patrulhados" class="required">Bairros patrulhados</label>
+                                    <textarea id="bairros_patrulhados" name="bairros_patrulhados" rows="2"
+                                        required></textarea>
+                                </div>
+                                <div class="form-group form-group-full-width">
+                                    <label for="ocorrencias_atendidas">Ocorrências atendidas</label>
+                                    <textarea id="ocorrencias_atendidas" name="ocorrencias_atendidas"
+                                        rows="3"></textarea>
+                                </div>
+                                <div class="form-group form-group-full-width">
+                                    <div class="itens-os-header">
+                                        <label class="required">Atividades por Ordem de Serviço</label>
+                                        <button type="button" class="btn btn-secondary" id="btnAdicionarItemOs">+
+                                            Adicionar Ordem de Serviço</button>
+                                    </div>
+                                    <p class="itens-os-ajuda">Registre cada Ordem de Serviço atendida no dia
+                                        separadamente. É possível adicionar quantas forem necessárias.</p>
+                                    <div id="itensOsContainer" class="itens-os-container"></div>
+                                    <p id="itensOsVazio" class="itens-os-vazio">Nenhuma atividade adicionada ainda.
+                                        Clique em "Adicionar Ordem de Serviço" para registrar a primeira.</p>
+                                </div>
+                                <div class="form-group form-group-full-width">
+                                    <label for="materiais_utilizados">Materiais utilizados</label>
+                                    <textarea id="materiais_utilizados" name="materiais_utilizados" rows="2"></textarea>
+                                </div>
+                                <div class="form-group form-group-full-width">
+                                    <label for="alteracoes_viaturas">Alterações encontradas nas viaturas</label>
+                                    <textarea id="alteracoes_viaturas" name="alteracoes_viaturas" rows="2"></textarea>
+                                </div>
+                                <div class="form-group form-group-full-width">
+                                    <label for="abastecimentos_realizados">Abastecimentos realizados</label>
+                                    <textarea id="abastecimentos_realizados" name="abastecimentos_realizados"
+                                        rows="2"></textarea>
+                                </div>
+                                <div class="form-group form-group-full-width">
+                                    <label for="observacoes">Observações</label>
+                                    <textarea id="observacoes" name="observacoes" rows="2"></textarea>
+                                </div>
+
+                                <p id="formErro" class="form-erro" style="display:none;"></p>
+                            </div>
+
+                            <div class="buttons">
+                                <button type="button" class="btn btn-secondary" id="btnCancelarEdicao"
+                                    style="display:none;">Cancelar edição</button>
+                                <button type="reset" class="btn btn-secondary">Limpar</button>
+                                <button type="submit" class="btn btn-primary" id="btnSalvar">Salvar Relatório</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- ============ FILTROS ============ -->
+                    <div class="filtros-wrapper">
+                        <div class="form-group">
+                            <label for="filtroBusca">🔎 Busca dinâmica</label>
+                            <input type="text" id="filtroBusca" placeholder="Equipe, responsável, bairro...">
+                        </div>
+                        <div class="form-group">
+                            <label for="filtroData">Data</label>
+                            <input type="date" id="filtroData">
+                        </div>
+                        <div class="form-group">
+                            <label for="filtroEquipe">Equipe</label>
+                            <select id="filtroEquipe">
+                                <option value="">Todas</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="filtroResponsavel">Responsável</label>
+                            <select id="filtroResponsavel">
+                                <option value="">Todos</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="filtroViatura">Viatura</label>
+                            <select id="filtroViatura">
+                                <option value="">Todas</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="filtroNumeroOrdem">Nº da Ordem de Serviço</label>
+                            <input type="text" id="filtroNumeroOrdem" placeholder="Ex: OS-20260817-...">
+                        </div>
+                        <div class="form-group">
+                            <label for="filtroStatusOs">Status da O.S.</label>
+                            <select id="filtroStatusOs">
+                                <option value="">Todos</option>
+                                <option value="Concluída">Concluída</option>
+                                <option value="Não concluída">Não concluída</option>
+                                <option value="Em andamento">Em andamento</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="display:flex;align-items:flex-end;">
+                            <button type="button" class="btn btn-secondary" id="btnLimparFiltros">Limpar
+                                filtros</button>
+                        </div>
+                    </div>
+
+                    <!-- ============ TABELA ============ -->
+                    <div class="registro-container">
+                        <h3>Relatórios cadastrados</h3>
+                        <div class="table-responsive">
+                            <table id="tabelaRelatorios">
+                                <thead>
+                                    <tr>
+                                        <th>Data</th>
+                                        <th>Turno</th>
+                                        <th>Equipe</th>
+                                        <th>Responsável</th>
+                                        <th>Viaturas</th>
+                                        <th>KM Rodado</th>
+                                        <th>Ordens de Serviço</th>
+                                        <th>Status</th>
+                                        <th>Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tabelaRelatoriosBody"></tbody>
+                            </table>
+                        </div>
+                        <div id="paginacaoRelatorios"></div>
+                    </div>
+                </main>
+
+                <footer>
+                    <div class="footer">
+                        © 2026 GUARDA MUNICIPAL DE LAGUNA
+                    </div>
+                </footer>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ MODAL DE DETALHES ============ -->
+    <div class="modal-overlay" id="detalheModal">
+        <div class="modal-content modal-content-lg">
+            <h3>Detalhes do Relatório Diário</h3>
+            <div id="detalheConteudo"></div>
+            <div class="buttons" style="padding:0;">
+                <button type="button" class="btn btn-secondary" id="detalheFecharBtn">Fechar</button>
+                <button type="button" class="btn btn-info" id="detalhePdfBtn">📄 Gerar PDF</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 1º: SDK do Supabase (Obrigatório) -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- 2º: Configuração e conexão -->
+    <script src="js/config.js"></script>
+    <script src="js/supabaseClient.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+
+    <!-- 3º: Componentes e utilitários compartilhados -->
+    <script src="js/utils.js"></script>
+    <script src="js/dadosComuns.js"></script>
+    <script src="js/components/layout.js"></script>
+    <script src="js/components/pdf.js"></script>
+
+    <!-- 4º: Lógica da página -->
+    <script src="js/relatorioDiario.js"></script>
+    <script src="js/pwa.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", async function () {
+            requireAuth();
+            initLayout();
+            await initRelatorioDiario();
+            registerPWA();
+        });
+    </script>
+</body>
+
+</html>

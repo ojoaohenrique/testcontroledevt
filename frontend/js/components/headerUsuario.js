@@ -29,7 +29,7 @@ function renderHeaderUsuario() {
 
 function logout() {
     localStorage.removeItem("auth");
-    window.location.href = "index.html";
+    window.location.href = "login.html";
 }
 
 renderHeaderUsuario();

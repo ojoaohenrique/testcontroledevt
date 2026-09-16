@@ -1,23 +1,33 @@
-const CACHE_NAME = "gml-viaturas-cache-v7";
-const STATIC_CACHE = "gml-static-v7";
-const API_CACHE = "gml-api-v7";
+const CACHE_NAME = "gml-viaturas-cache-v8";
+const STATIC_CACHE = "gml-static-v8";
+const API_CACHE = "gml-api-v8";
 
 const ASSETS_TO_CACHE = [
     "/",
     "/login.html",
     "/dashboard.html",
     "/viaturas.html",
+    "/relatorio-diario.html",
+    "/ordens-servico.html",
     "/css/base.css",
     "/css/login.css",
     "/css/viaturas.css",
     "/css/dashboard.css",
+    "/css/layout.css",
+    "/css/modulos.css",
     "/js/config.js",
     "/js/supabaseClient.js",
     "/js/auth.js",
     "/js/api.js",
+    "/js/utils.js",
+    "/js/dadosComuns.js",
     "/js/dashboard.js",
     "/js/viaturas.js",
+    "/js/relatorioDiario.js",
+    "/js/ordensServico.js",
     "/js/pwa.js",
+    "/js/components/layout.js",
+    "/js/components/pdf.js",
     "/js/components/headerUsuario.js",
     "/manifest.json",
     "/icons/icon-192x192.png",

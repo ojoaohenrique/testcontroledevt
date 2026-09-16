@@ -8,8 +8,26 @@ Este é um aplicativo web progressivo (PWA) para gerenciamento de frota de viatu
 - Registro de saída e retorno de viaturas
 - Controle de abastecimento
 - Dashboard com indicadores em tempo real
+- Relatório Diário das atividades operacionais
+- Ordens de Serviço com emissão e acompanhamento
 - Acesso offline via PWA
 - com facil acessibilidade
+
+## Módulos Operacionais
+
+O sistema possui 4 módulos integrados:
+
+| Módulo | Página | Descrição |
+|--------|--------|-----------|
+| **Dashboard** | `dashboard.html` | Tela inicial com 8 indicadores (viaturas em serviço/disponíveis/manutenção, saídas do dia, abastecimentos, km do dia, O.S. em andamento, relatórios enviados) e 4 gráficos (Chart.js): saídas por dia, consumo de combustível, utilização das viaturas e abastecimentos por mês. Atualiza automaticamente a cada 60s. |
+| **Viaturas** | `viaturas.html` | Saída/retorno de viaturas com fotos, abastecimento com cálculo de média km/l, histórico e filtros. |
+| **Relatório Diário** | `relatorio-diario.html` | CRUD completo do relatório diário (turno, equipe, responsável, motoristas, viaturas, km inicial/final, bairros patrulhados, ocorrências, atividades, materiais, alterações nas viaturas, abastecimentos, observações, status, assinatura). Pesquisa, filtros por data/equipe/responsável/viatura, visualização detalhada e geração de PDF. |
+| **Ordens de Serviço** | `ordens-servico.html` | CRUD completo (número auto-gerado OS-YYYYMMDD-HHMMSS, solicitante, setor, prioridade, status, viatura, motorista, equipe, tipo de serviço, descrição, local, início/término, resultado, observações, assinatura). Filtros por status/data/equipe/motorista/viatura, PDF e integração com o Relatório Diário. |
+
+### Integração entre módulos
+
+- Ao **concluir uma Ordem de Serviço**, o sistema oferece gerar automaticamente um **Relatório Diário** pré-preenchido (dados da O.S. → relatório).
+- O **Dashboard** atualiza automaticamente os indicadores ao detectar novos registros nas tabelas `saidas_viaturas`, `abastecimentos`, `ordens_servico` e `relatorios_diarios`.
 
 ## Tecnologias
 
@@ -90,7 +108,13 @@ localStorage.setItem('SUPABASE_ANON_KEY', 'sua-anon-key');
 
 ### 2. Executar schema SQL
 
-No SQL Editor do Supabase, execute o conteúdo do arquivo `backend/supabase_schema.sql` para criar as tabelas necessárias.
+No SQL Editor do Supabase, execute na seguinte ordem:
+
+1. `backend/supabase_schema.sql` — tabelas base (`saidas_viaturas`, `abastecimentos`)
+2. `backend/migrations/002_modulos_operacionais.sql` — tabelas dos módulos operacionais (`ordens_servico`, `relatorios_diarios`)
+3. `backend/migrations/003_complemento_schema.sql` — tabelas de apoio (`viaturas`, `usuarios`, `inspetores`), validações CHECK, índices e RLS
+
+Todas as migrations são idempotentes e **não removem** tabelas existentes.
 
 ### 3. Configurar autenticação
 

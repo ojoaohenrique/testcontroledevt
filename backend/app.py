@@ -3,6 +3,7 @@ import os
 from dotenv import load_dotenv
 from flask import Flask, jsonify, Response, send_from_directory
 from flask_cors import CORS
+from sqlalchemy import text
 
 from backend.controllers.auth_controller import auth_bp
 from backend.controllers.viaturas_controller import viaturas_bp
@@ -47,7 +48,7 @@ def create_app() -> Flask:
             return jsonify({"status": "error", "detail": "DB não configurado ou indisponível."}), 503
         try:
             db = SessionLocal()
-            db.execute("SELECT 1")
+            db.execute(text("SELECT 1"))
             db.close()
             return jsonify({"status": "ok"}), 200
         except Exception as exc:

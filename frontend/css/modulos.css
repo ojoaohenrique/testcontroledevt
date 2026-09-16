@@ -1,0 +1,277 @@
+.filtros-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 16px;
+    padding: 16px;
+    background: var(--branco);
+    border: 1px solid var(--cinza-borda);
+    border-radius: 8px;
+}
+
+.filtros-wrapper .form-group {
+    flex: 1;
+    min-width: 160px;
+    margin-bottom: 0;
+}
+
+.acoes-tabela {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.acoes-tabela .btn {
+    margin-left: 0;
+    padding: 4px 10px;
+    font-size: 0.85rem;
+}
+
+.btn-danger {
+    background-color: #dc3545;
+    color: white;
+}
+
+.btn-warning {
+    background-color: #ffc107;
+    color: #333;
+}
+
+.btn-info {
+    background-color: #17a2b8;
+    color: white;
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.status-aberta, .status-rascunho { background: #e9ecef; color: #495057; }
+.status-em-andamento { background: #fff3cd; color: #856404; }
+.status-concluida, .status-enviado, .status-aprovado { background: #d4edda; color: #155724; }
+.status-cancelada, .status-arquivado, .status-nao-concluida { background: #f8d7da; color: #721c24; }
+.status-pendente { background: #e9ecef; color: #6c757d; font-weight: 600; }
+
+/* ============ ITENS DINAMICOS: Atividades por Ordem de Servico ============ */
+.itens-os-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.itens-os-header .btn {
+    margin-left: 0;
+}
+
+.itens-os-ajuda {
+    margin: 4px 0 12px;
+    font-size: 0.85rem;
+    color: var(--cinza-texto);
+}
+
+.itens-os-container {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.itens-os-vazio {
+    display: none;
+    text-align: center;
+    padding: 18px;
+    border: 1px dashed var(--cinza-borda);
+    border-radius: 8px;
+    color: var(--cinza-texto);
+    margin: 0;
+}
+
+.itens-os-container:empty + .itens-os-vazio {
+    display: block;
+}
+
+.item-os-card {
+    position: relative;
+    border: 1px solid var(--cinza-borda);
+    border-left: 4px solid var(--azul-cconet);
+    border-radius: 8px;
+    padding: 16px 48px 18px 18px;
+    background: var(--azul-claro);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+    transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+}
+
+.item-os-card:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+/* Cor da borda e do fundo acompanham o status escolhido na atividade,
+   dando um retorno visual imediato sem precisar ler o texto do badge. */
+.item-os-card[data-status="concluida"] {
+    border-left-color: #28a745;
+}
+
+.item-os-card[data-status="em-andamento"] {
+    border-left-color: #d9a400;
+}
+
+.item-os-card[data-status="nao-concluida"] {
+    border-left-color: #dc3545;
+    background: #fff7f7;
+}
+
+.item-os-cabecalho {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.item-os-titulo {
+    font-weight: bold;
+    color: var(--azul-cconet);
+    font-size: 0.95rem;
+}
+
+.item-os-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: 14px 16px;
+}
+
+.item-os-grid .form-group {
+    margin-bottom: 0;
+}
+
+.item-os-full {
+    grid-column: 1 / -1;
+}
+
+.item-os-alerta {
+    background: #fdecea;
+    border: 1px solid #f3c2c2;
+    border-radius: 6px;
+    padding: 10px 12px 12px;
+}
+
+.item-os-alerta label {
+    color: #a02128;
+}
+
+.item-os-alerta textarea {
+    border-color: #eab7b7;
+}
+
+.item-os-remover {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    width: 26px;
+    height: 26px;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    margin-left: 0;
+    font-size: 0.85rem;
+    font-weight: bold;
+    color: #a02128;
+    background: transparent;
+    border: 1px solid #eab7b7;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.item-os-remover:hover {
+    background: #dc3545;
+    border-color: #dc3545;
+    color: #fff;
+}
+
+.paginacao {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 16px;
+    padding: 12px;
+}
+
+.paginacao .btn-pag {
+    margin-left: 0;
+}
+
+.paginacao-info {
+    font-size: 0.9rem;
+    color: var(--cinza-texto);
+}
+
+.detalhe-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.detalhe-item {
+    background: var(--azul-claro);
+    border-radius: 6px;
+    padding: 10px 12px;
+}
+
+.detalhe-item label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    color: var(--cinza-texto);
+    margin-bottom: 4px;
+}
+
+.detalhe-item p {
+    margin: 0;
+    color: var(--azul-cconet);
+    font-weight: 500;
+}
+
+.detalhe-texto {
+    background: var(--branco);
+    border: 1px solid var(--cinza-borda);
+    border-radius: 6px;
+    padding: 12px;
+    margin-bottom: 12px;
+    white-space: pre-wrap;
+}
+
+.form-group-full-width {
+    grid-column: 1 / -1;
+}
+
+select[multiple] {
+    min-height: 100px;
+}
+
+.charts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 16px;
+    margin-top: 24px;
+}
+
+.table-responsive {
+    overflow-x: auto;
+}
+
+@media (max-width: 768px) {
+    .filtros-wrapper .form-group {
+        min-width: 100%;
+    }
+}

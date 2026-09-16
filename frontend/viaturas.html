@@ -3,6 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
+    <script src="js/siteGate.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#0056b3">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -20,12 +21,18 @@
     <link rel="apple-touch-icon" href="icons/icon-192x192.png">
     <link rel="stylesheet" href="css/base.css">
     <link rel="stylesheet" href="css/viaturas.css">
+    <link rel="stylesheet" href="css/layout.css">
 </head>
 
 <body>
-    <header id="headerUsuario"></header>
+    <div class="container">
+        <div class="app-layout">
+            <aside class="sidebar" id="sidebar"></aside>
 
-    <main class="container">
+            <div class="app-main">
+                <header id="headerUsuario"></header>
+
+                <main>
         <header class="topbar">
             <div class="topbar-left">
                 <h1>GML - Controle de Viaturas</h1>
@@ -242,13 +249,16 @@
                 </table>
             </div>
         </div>
-    </main>
+            </main>
 
-    <footer>
-        <div class="footer">
-            © 2026 GUARDA MUNICIPAL DE LAGUNA
+            <footer>
+                <div class="footer">
+                    © 2026 GUARDA MUNICIPAL DE LAGUNA
+                </div>
+            </footer>
+            </div>
         </div>
-    </footer>
+    </div>
 
     <div class="modal-overlay" id="voltaModal">
         <div class="modal-content">
@@ -291,13 +301,13 @@
     <!-- 4º: O arquivo que tenta salvar os dados -->
     <script src="js/api.js"></script>
     <script src="js/auth.js"></script>
-    <script src="js/components/headerUsuario.js"></script>
+    <script src="js/components/layout.js"></script>
     <script src="js/viaturas.js"></script>
     <script src="js/pwa.js"></script>
     <script>
         document.addEventListener("DOMContentLoaded", async function () {
             requireAuth();
-            renderHeaderUsuario();
+            initLayout();
             await initSistema();
             registerPWA();
         });

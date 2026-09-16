@@ -51,7 +51,7 @@ function initLoginPage() {
                 })
             );
 
-            window.location.href = "viaturas.html";
+            window.location.href = "dashboard.html";
         } catch (e) {
             console.error(e);
             erroEl.textContent = "Erro inesperado ao fazer login.";

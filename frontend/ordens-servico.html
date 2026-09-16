@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <script src="js/siteGate.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0056b3">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="description" content="GML - Ordens de Serviço da Guarda Municipal de Laguna">
+    <title>GML - Ordens de Serviço</title>
+
+    <script>
+        window.ENV_SUPABASE_URL = "https://ysrexztknpgrsoqioxjf.supabase.co";
+        window.ENV_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlzcmV4enRrbnBncnNvcWlveGpmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2NjYxMDAsImV4cCI6MjA4OTI0MjEwMH0.r52VrHZRmiAk5agdK5C54NNzAt8CyTkZvl8YSbffQW4";
+    </script>
+
+    <link rel="manifest" href="manifest.json" />
+    <link rel="apple-touch-icon" href="icons/icon-192x192.png">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/viaturas.css">
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/modulos.css">
+</head>
+
+<body>
+    <div class="container">
+        <div class="app-layout">
+            <aside class="sidebar" id="sidebar"></aside>
+
+            <div class="app-main">
+                <header id="headerUsuario"></header>
+
+                <main>
+                    <header class="topbar">
+                        <div class="topbar-left">
+                            <h1>📝 Ordens de Serviço</h1>
+                            <p>Emissão e acompanhamento das ordens de serviço operacionais</p>
+                        </div>
+                        <div class="topbar-stats">
+                            <div class="stat-card">
+                                <span class="stat-label">Abertas</span>
+                                <span class="stat-value" id="contadorAbertas">0</span>
+                            </div>
+                            <div class="stat-card">
+                                <span class="stat-label">Em andamento</span>
+                                <span class="stat-value" id="contadorAndamento">0</span>
+                            </div>
+                            <div class="stat-card">
+                                <span class="stat-label">Concluídas</span>
+                                <span class="stat-value" id="contadorConcluidas">0</span>
+                            </div>
+                        </div>
+                    </header>
+
+                    <!-- ============ FORMULÁRIO ============ -->
+                    <div class="form-container" style="min-width:0;margin-bottom:24px;">
+                        <div class="header" id="formTitulo">Nova Ordem de Serviço</div>
+                        <form id="ordemForm" novalidate>
+                            <input type="hidden" id="ordemId">
+
+                            <div class="form-body">
+                                <div class="form-grid">
+                                    <div class="form-group">
+                                        <label for="numero_ordem" class="required">Número da Ordem</label>
+                                        <input type="text" id="numero_ordem" name="numero_ordem" required readonly
+                                            class="readonly-input">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="data" class="required">Data</label>
+                                        <input type="date" id="data" name="data" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="hora" class="required">Hora</label>
+                                        <input type="time" id="hora" name="hora" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="solicitante" class="required">Solicitante</label>
+                                        <input type="text" id="solicitante" name="solicitante" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="setor" class="required">Setor</label>
+                                        <input type="text" id="setor" name="setor" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="prioridade" class="required">Prioridade</label>
+                                        <select id="prioridade" name="prioridade" required>
+                                            <option value="">Selecione...</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="status" class="required">Status</label>
+                                        <select id="status" name="status" required>
+                                            <option value="">Selecione...</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="viatura">Viatura</label>
+                                        <select id="viatura" name="viatura">
+                                            <option value="">Selecione...</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="motorista">Motorista</label>
+                                        <select id="motorista" name="motorista">
+                                            <option value="">Selecione...</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="equipe">Equipe</label>
+                                        <select id="equipe" name="equipe">
+                                            <option value="">Selecione...</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="tipo_servico" class="required">Tipo de serviço</label>
+                                        <select id="tipo_servico" name="tipo_servico" required>
+                                            <option value="">Selecione...</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="local">Local</label>
+                                        <input type="text" id="local" name="local">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="data_hora_inicio">Data/Hora início</label>
+                                        <input type="datetime-local" id="data_hora_inicio" name="data_hora_inicio">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="data_hora_termino">Data/Hora término</label>
+                                        <input type="datetime-local" id="data_hora_termino" name="data_hora_termino">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="assinatura">Assinatura</label>
+                                        <input type="text" id="assinatura" name="assinatura"
+                                            placeholder="Nome de quem assina">
+                                    </div>
+                                </div>
+
+                                <div class="form-group form-group-full-width">
+                                    <label for="descricao" class="required">Descrição</label>
+                                    <textarea id="descricao" name="descricao" rows="3" required></textarea>
+                                </div>
+                                <div class="form-group form-group-full-width">
+                                    <label for="resultado">Resultado</label>
+                                    <textarea id="resultado" name="resultado" rows="3"></textarea>
+                                </div>
+                                <div class="form-group form-group-full-width">
+                                    <label for="observacoes">Observações</label>
+                                    <textarea id="observacoes" name="observacoes" rows="2"></textarea>
+                                </div>
+
+                                <p id="formErro" class="form-erro" style="display:none;"></p>
+                            </div>
+
+                            <div class="buttons">
+                                <button type="button" class="btn btn-secondary" id="btnCancelarEdicao"
+                                    style="display:none;">Cancelar edição</button>
+                                <button type="reset" class="btn btn-secondary">Limpar</button>
+                                <button type="submit" class="btn btn-primary" id="btnSalvar">Salvar Ordem</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- ============ FILTROS ============ -->
+                    <div class="filtros-wrapper">
+                        <div class="form-group">
+                            <label for="filtroBusca">🔎 Busca dinâmica</label>
+                            <input type="text" id="filtroBusca" placeholder="Número, solicitante, local...">
+                        </div>
+                        <div class="form-group">
+                            <label for="filtroStatus">Status</label>
+                            <select id="filtroStatus">
+                                <option value="">Todos</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="filtroData">Data</label>
+                            <input type="date" id="filtroData">
+                        </div>
+                        <div class="form-group">
+                            <label for="filtroEquipe">Equipe</label>
+                            <select id="filtroEquipe">
+                                <option value="">Todas</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="filtroMotorista">Motorista</label>
+                            <select id="filtroMotorista">
+                                <option value="">Todos</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="filtroViatura">Viatura</label>
+                            <select id="filtroViatura">
+                                <option value="">Todas</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="display:flex;align-items:flex-end;">
+                            <button type="button" class="btn btn-secondary" id="btnLimparFiltros">Limpar
+                                filtros</button>
+                        </div>
+                    </div>
+
+                    <!-- ============ TABELA ============ -->
+                    <div class="registro-container">
+                        <h3>Ordens cadastradas</h3>
+                        <div class="table-responsive">
+                            <table id="tabelaOrdens">
+                                <thead>
+                                    <tr>
+                                        <th>Número</th>
+                                        <th>Data/Hora</th>
+                                        <th>Solicitante</th>
+                                        <th>Tipo</th>
+                                        <th>Viatura</th>
+                                        <th>Equipe</th>
+                                        <th>Prioridade</th>
+                                        <th>Status</th>
+                                        <th>Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tabelaOrdensBody"></tbody>
+                            </table>
+                        </div>
+                        <div id="paginacaoOrdens"></div>
+                    </div>
+                </main>
+
+                <footer>
+                    <div class="footer">
+                        © 2026 GUARDA MUNICIPAL DE LAGUNA
+                    </div>
+                </footer>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ MODAL DE DETALHES ============ -->
+    <div class="modal-overlay" id="detalheModal">
+        <div class="modal-content modal-content-lg">
+            <h3>Detalhes da Ordem de Serviço</h3>
+            <div id="detalheConteudo"></div>
+            <div class="buttons" style="padding:0;">
+                <button type="button" class="btn btn-secondary" id="detalheFecharBtn">Fechar</button>
+                <button type="button" class="btn btn-success" id="detalheRelatorioBtn"
+                    style="display:none;">📋 Gerar Relatório Diário</button>
+                <button type="button" class="btn btn-info" id="detalhePdfBtn">📄 Gerar PDF</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 1º: SDK do Supabase (Obrigatório) -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- 2º: Configuração e conexão -->
+    <script src="js/config.js"></script>
+    <script src="js/supabaseClient.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+
+    <!-- 3º: Componentes e utilitários compartilhados -->
+    <script src="js/utils.js"></script>
+    <script src="js/dadosComuns.js"></script>
+    <script src="js/components/layout.js"></script>
+    <script src="js/components/pdf.js"></script>
+
+    <!-- 4º: Lógica da página -->
+    <script src="js/ordensServico.js"></script>
+    <script src="js/pwa.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", async function () {
+            requireAuth();
+            initLayout();
+            await initOrdensServico();
+            registerPWA();
+        });
+    </script>
+</body>
+
+</html>

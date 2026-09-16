@@ -55,6 +55,13 @@
     margin-top: 0;
 }
 
+/* Contêiner com altura fixa: evita que o Chart.js colapse o gráfico
+   quando maintainAspectRatio: false */
+.chart-wrap {
+    position: relative;
+    height: 260px;
+}
+
 canvas {
     max-width: 100%;
 }

@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <script src="js/siteGate.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0056b3">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="description" content="GML - Dashboard Operacional da Guarda Municipal de Laguna">
+    <title>GML - Dashboard Operacional</title>
+
+    <script>
+        window.ENV_SUPABASE_URL = "https://ysrexztknpgrsoqioxjf.supabase.co";
+        window.ENV_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlzcmV4enRrbnBncnNvcWlveGpmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2NjYxMDAsImV4cCI6MjA4OTI0MjEwMH0.r52VrHZRmiAk5agdK5C54NNzAt8CyTkZvl8YSbffQW4";
+    </script>
+
+    <link rel="manifest" href="manifest.json" />
+    <link rel="apple-touch-icon" href="icons/icon-192x192.png">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/viaturas.css">
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/modulos.css">
+</head>
+
+<body>
+    <div class="container">
+        <div class="app-layout">
+            <aside class="sidebar" id="sidebar"></aside>
+
+            <div class="app-main">
+                <header id="headerUsuario"></header>
+
+                <main>
+                    <header class="topbar">
+                        <div class="topbar-left">
+                            <h1>Dashboard Operacional</h1>
+                            <p>Indicadores em tempo real da frota da Guarda Municipal de Laguna</p>
+                        </div>
+                        <div class="topbar-stats">
+                            <button type="button" class="btn btn-secondary" id="btnAtualizarDashboard">
+                                🔄 Atualizar
+                            </button>
+                        </div>
+                    </header>
+
+                    <!-- ============ CARDS DE INDICADORES ============ -->
+                    <section class="dashboard-cards">
+                        <div class="stat-card">
+                            <span class="stat-label">🚔 Viaturas em serviço</span>
+                            <span class="stat-value" id="cardViaturasEmServico">0</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-label">✅ Viaturas disponíveis</span>
+                            <span class="stat-value" id="cardViaturasDisponiveis">0</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-label">🔧 Viaturas em manutenção</span>
+                            <span class="stat-value" id="cardViaturasManutencao">0</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-label">📤 Total de saídas no dia</span>
+                            <span class="stat-value" id="cardSaidasDia">0</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-label">⛽ Total de abastecimentos</span>
+                            <span class="stat-value" id="cardAbastecimentos">0</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-label">🛣️ Quilometragem do dia</span>
+                            <span class="stat-value" id="cardKmDia">0</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-label">📝 O.S. em andamento</span>
+                            <span class="stat-value" id="cardOrdensAndamento">0</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-label">📋 Relatórios enviados</span>
+                            <span class="stat-value" id="cardRelatoriosEnviados">0</span>
+                        </div>
+                    </section>
+
+                    <!-- ============ GRÁFICOS ============ -->
+                    <section class="charts-grid">
+                        <div class="dashboard-chart">
+                            <h2>Saídas por dia (últimos 14 dias)</h2>
+                            <div class="chart-wrap">
+                                <canvas id="graficoSaidasPorDia"></canvas>
+                            </div>
+                        </div>
+                        <div class="dashboard-chart">
+                            <h2>Consumo de combustível (litros/mês)</h2>
+                            <div class="chart-wrap">
+                                <canvas id="graficoConsumoCombustivel"></canvas>
+                            </div>
+                        </div>
+                        <div class="dashboard-chart">
+                            <h2>Utilização das viaturas (km rodado)</h2>
+                            <div class="chart-wrap">
+                                <canvas id="graficoUtilizacaoViaturas"></canvas>
+                            </div>
+                        </div>
+                        <div class="dashboard-chart">
+                            <h2>Abastecimentos por mês</h2>
+                            <div class="chart-wrap">
+                                <canvas id="graficoAbastecimentosMes"></canvas>
+                            </div>
+                        </div>
+                    </section>
+                </main>
+
+                <footer>
+                    <div class="footer">
+                        © 2026 GUARDA MUNICIPAL DE LAGUNA
+                    </div>
+                </footer>
+            </div>
+        </div>
+    </div>
+
+    <!-- 1º: SDK do Supabase (Obrigatório) -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- 2º: Biblioteca de gráficos -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+    <!-- 3º: Configuração e conexão -->
+    <script src="js/config.js"></script>
+    <script src="js/supabaseClient.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+
+    <!-- 4º: Componentes e utilitários compartilhados -->
+    <script src="js/utils.js"></script>
+    <script src="js/dadosComuns.js"></script>
+    <script src="js/components/layout.js"></script>
+
+    <!-- 5º: Lógica da página -->
+    <script src="js/dashboard.js"></script>
+    <script src="js/pwa.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", async function () {
+            requireAuth();
+            initLayout();
+            await initDashboard();
+            registerPWA();
+        });
+    </script>
+</body>
+
+</html>
