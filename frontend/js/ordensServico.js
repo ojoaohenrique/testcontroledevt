@@ -49,14 +49,13 @@
         var campoNumero = document.getElementById('numero_ordem');
         if (campoNumero && !campoNumero.value) campoNumero.value = gerarNumeroOrdem();
 
-        var campoData = document.getElementById('data');
-        if (campoData && !campoData.value) campoData.value = hojeISO();
-
-        var campoHora = document.getElementById('hora');
-        if (campoHora && !campoHora.value) {
+        // Data/Hora início concentra o que antes eram os campos separados
+        // "Data" e "Hora" (duplicados). Pré-preenche com o momento atual.
+        var campoInicio = document.getElementById('data_hora_inicio');
+        if (campoInicio && !campoInicio.value) {
             var agora = new Date();
-            campoHora.value = String(agora.getHours()).padStart(2, '0') + ':' +
-                String(agora.getMinutes()).padStart(2, '0');
+            var tzoffset = agora.getTimezoneOffset() * 60000;
+            campoInicio.value = new Date(agora.getTime() - tzoffset).toISOString().slice(0, 16);
         }
 
         var campoStatus = document.getElementById('status');
@@ -370,10 +369,16 @@
     }
 
     function montarPayload() {
+        // "Data" e "Hora" nao sao mais preenchidos separadamente pelo usuario
+        // (eram duplicados de "Data/Hora inicio"): derivamos os dois a partir
+        // do valor local do datetime-local, sem passar por conversao UTC.
+        var inicioBruto = valorDe('data_hora_inicio');
+        var partesInicio = inicioBruto ? inicioBruto.split('T') : [];
+
         return {
             numero_ordem: valorDe('numero_ordem'),
-            data: valorDe('data'),
-            hora: valorDe('hora'),
+            data: partesInicio[0] || '',
+            hora: partesInicio[1] || '',
             solicitante: textoOuNulo(valorDe('solicitante')),
             setor: textoOuNulo(valorDe('setor')),
             prioridade: valorDe('prioridade'),
@@ -384,7 +389,7 @@
             tipo_servico: valorDe('tipo_servico'),
             descricao: textoOuNulo(valorDe('descricao')),
             local: textoOuNulo(valorDe('local')),
-            data_hora_inicio: paraTimestamp(valorDe('data_hora_inicio')),
+            data_hora_inicio: paraTimestamp(inicioBruto),
             data_hora_termino: paraTimestamp(valorDe('data_hora_termino')),
             resultado: textoOuNulo(valorDe('resultado')),
             observacoes: textoOuNulo(valorDe('observacoes')),
@@ -397,8 +402,7 @@
     // ---------------------------------------------------------------
     function validar(p) {
         if (!p.numero_ordem) return 'Informe o número da ordem.';
-        if (!p.data) return 'Informe a data da ordem.';
-        if (!p.hora) return 'Informe a hora da ordem.';
+        if (!p.data_hora_inicio) return 'Informe a data e hora de início da ordem.';
         if (!p.solicitante) return 'Informe o solicitante.';
         if (!p.setor) return 'Informe o setor.';
         if (!p.prioridade) return 'Selecione a prioridade.';
@@ -408,7 +412,7 @@
 
         if (p.data_hora_inicio && p.data_hora_termino &&
             p.data_hora_termino < p.data_hora_inicio) {
-            return 'A data/hora de término deve ser posterior ao início.';
+            return 'A hora de término previsto deve ser posterior ao início.';
         }
         return null;
     }
@@ -421,8 +425,6 @@
 
         definirValor('ordemId', o.id);
         definirValor('numero_ordem', o.numero_ordem || '');
-        definirValor('data', o.data || '');
-        definirValor('hora', o.hora ? o.hora.slice(0, 5) : '');
         definirValor('solicitante', o.solicitante || '');
         definirValor('setor', o.setor || '');
         definirValor('prioridade', o.prioridade || '');
@@ -505,8 +507,6 @@
         conteudo.innerHTML =
             '<div class="detalhe-grid">' +
             item('Número', o.numero_ordem) +
-            item('Data', formatarData(o.data)) +
-            item('Hora', o.hora || '-') +
             item('Status', o.status) +
             item('Prioridade', o.prioridade) +
             item('Solicitante', o.solicitante) +
@@ -516,8 +516,8 @@
             item('Equipe', o.equipe || '-') +
             item('Tipo de serviço', o.tipo_servico) +
             item('Local', o.local || '-') +
-            item('Início', formatarDataHora(o.data_hora_inicio)) +
-            item('Término', formatarDataHora(o.data_hora_termino)) +
+            item('Data/Hora início', formatarDataHora(o.data_hora_inicio)) +
+            item('Hora de término previsto', formatarDataHora(o.data_hora_termino)) +
             item('Assinatura', o.assinatura || '-') +
             '</div>' +
             bloco('Descrição', o.descricao) +
@@ -561,8 +561,6 @@
             '<div class="pdf-secao"><h2>Identificação</h2>' +
             GML_PDF.blocoGrid([
                 { label: 'Número da Ordem', valor: o.numero_ordem },
-                { label: 'Data', valor: formatarData(o.data) },
-                { label: 'Hora', valor: o.hora },
                 { label: 'Solicitante', valor: o.solicitante },
                 { label: 'Setor', valor: o.setor },
                 { label: 'Prioridade', valor: o.prioridade },
@@ -576,7 +574,7 @@
                 { label: 'Motorista', valor: o.motorista || '-' },
                 { label: 'Equipe', valor: o.equipe || '-' },
                 { label: 'Data/Hora início', valor: formatarDataHora(o.data_hora_inicio) },
-                { label: 'Data/Hora término', valor: formatarDataHora(o.data_hora_termino) },
+                { label: 'Hora de término previsto', valor: formatarDataHora(o.data_hora_termino) },
                 { label: 'Assinatura', valor: o.assinatura || '-' },
             ]) + '</div>' +
             GML_PDF.blocoTexto('Descrição', o.descricao) +

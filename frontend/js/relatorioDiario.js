@@ -865,7 +865,7 @@
                 ? '' : r.autos_infracao_quantidade) +
             item('Limpeza da viatura', r.viatura_limpeza) +
             item('Alterações na viatura', r.viatura_alteracoes) +
-            item('Abastecimento', r.abastecimentos_realizados) +
+            item('Nível de combustível recebido', r.abastecimentos_realizados) +
             '</div>' +
             blocoItensDetalhe(itensRelatorio) +
             bloco('Bairros patrulhados', r.bairros_patrulhados) +
@@ -960,7 +960,7 @@
                 { label: 'Autos de infração', valor: r.autos_infracao_quantidade === null || r.autos_infracao_quantidade === undefined ? '' : r.autos_infracao_quantidade },
                 { label: 'Limpeza da viatura', valor: r.viatura_limpeza },
                 { label: 'Alterações na viatura', valor: r.viatura_alteracoes },
-                { label: 'Abastecimento', valor: r.abastecimentos_realizados },
+                { label: 'Nível de combustível recebido', valor: r.abastecimentos_realizados },
             ]) + '</div>' +
             GML_PDF.blocoTabela('Atividades por Ordem de Serviço',
                 ['Nº da O.S.', 'Status', 'Atividade realizada', 'Qtd.', 'Unidade', 'Observações / Motivo'],
@@ -1004,7 +1004,7 @@
         }
         if (r.viatura_limpeza) linhas.push('🧼 *Limpeza da viatura:* ' + r.viatura_limpeza);
         if (r.viatura_alteracoes) linhas.push('🔧 *Alterações na viatura:* ' + r.viatura_alteracoes);
-        if (r.abastecimentos_realizados) linhas.push('⛽ *Abastecimento:* ' + r.abastecimentos_realizados);
+        if (r.abastecimentos_realizados) linhas.push('⛽ *Nível de combustível recebido:* ' + r.abastecimentos_realizados);
 
         function blocoTexto(titulo, texto) {
             if (!texto) return;
