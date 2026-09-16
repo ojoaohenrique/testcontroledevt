@@ -44,13 +44,9 @@
         preencherSelect('responsavel', dados.MOTORISTAS || []);
         preencherSelect('status', dados.STATUS_RELATORIO || []);
 
-        preencherSelectMultiplo('motoristas', dados.MOTORISTAS || []);
-        preencherSelectMultiplo('viaturas_utilizadas', dados.VIATURAS || []);
-
         // Filtros
         preencherSelect('filtroEquipe', dados.EQUIPES || []);
         preencherSelect('filtroResponsavel', dados.MOTORISTAS || []);
-        preencherSelect('filtroViatura', dados.VIATURAS || []);
     }
 
     function aplicarValoresPadrao() {
@@ -109,7 +105,7 @@
         }
 
         // Filtros
-        ['filtroBusca', 'filtroData', 'filtroEquipe', 'filtroResponsavel', 'filtroViatura',
+        ['filtroBusca', 'filtroData', 'filtroEquipe', 'filtroResponsavel',
             'filtroNumeroOrdem', 'filtroStatusOs']
             .forEach(function (id) {
                 var el = document.getElementById(id);
@@ -136,6 +132,7 @@
                 else if (acao === 'editar') iniciarEdicao(id);
                 else if (acao === 'excluir') handleExcluir(id);
                 else if (acao === 'pdf') gerarPdfRelatorio(id);
+                else if (acao === 'whatsapp') compartilharWhatsapp(id);
             });
 
         // Modal de detalhes
@@ -169,13 +166,6 @@
         definirValor('observacoes', rascunho.observacoes || '');
         definirValor('assinatura_responsavel', rascunho.assinatura_responsavel || '');
         definirValor('ordemServicoId', rascunho.ordem_servico_id || '');
-
-        if (rascunho.viaturas && rascunho.viaturas.length) {
-            definirValoresMultiSelect('viaturas_utilizadas', rascunho.viaturas);
-        }
-        if (rascunho.motoristas && rascunho.motoristas.length) {
-            definirValoresMultiSelect('motoristas', rascunho.motoristas);
-        }
 
         if (rascunho.ordem_servico_id) {
             adicionarItem({
@@ -273,7 +263,6 @@
         var data = valorDe('filtroData');
         var equipe = valorDe('filtroEquipe');
         var responsavel = valorDe('filtroResponsavel');
-        var viatura = valorDe('filtroViatura');
         var numeroOrdem = (valorDe('filtroNumeroOrdem') || '').trim().toLowerCase();
         var statusOs = valorDe('filtroStatusOs');
 
@@ -281,10 +270,6 @@
             if (data && r.data !== data) return false;
             if (equipe && r.equipe !== equipe) return false;
             if (responsavel && r.responsavel !== responsavel) return false;
-            if (viatura) {
-                var lista = r.viaturas_utilizadas || [];
-                if (lista.indexOf(viatura) < 0) return false;
-            }
 
             var itensRelatorio = estado.itensPorRelatorio[r.id] || [];
 
@@ -302,8 +287,6 @@
                 var alvo = [
                     r.equipe, r.responsavel, r.turno, r.status,
                     r.bairros_patrulhados, r.ocorrencias_atendidas,
-                    (r.viaturas_utilizadas || []).join(' '),
-                    (r.motoristas || []).join(' '),
                     itensRelatorio.map(function (item) {
                         return [item.numero_ordem, item.atividade_realizada, item.observacoes].join(' ');
                     }).join(' '),
@@ -317,7 +300,7 @@
     }
 
     function limparFiltros() {
-        ['filtroBusca', 'filtroData', 'filtroEquipe', 'filtroResponsavel', 'filtroViatura',
+        ['filtroBusca', 'filtroData', 'filtroEquipe', 'filtroResponsavel',
             'filtroNumeroOrdem', 'filtroStatusOs']
             .forEach(function (id) {
                 var el = document.getElementById(id);
@@ -344,7 +327,7 @@
 
         if (pagina.length === 0) {
             var vazio = document.createElement('tr');
-            vazio.innerHTML = '<td colspan="9" style="text-align:center;padding:24px;">' +
+            vazio.innerHTML = '<td colspan="7" style="text-align:center;padding:24px;">' +
                 'Nenhum relatório encontrado.</td>';
             tbody.appendChild(vazio);
         } else {
@@ -367,8 +350,6 @@
         var tr = document.createElement('tr');
         tr.dataset.id = r.id;
 
-        var viaturas = (r.viaturas_utilizadas || []).join(', ') || '-';
-        var kmRodado = calcularKmRodado(r);
         var itensRelatorio = estado.itensPorRelatorio[r.id] || [];
         var ordensTexto = itensRelatorio.length === 0
             ? '-'
@@ -382,26 +363,18 @@
             '<td>' + escapar(r.turno) + '</td>' +
             '<td>' + escapar(r.equipe) + '</td>' +
             '<td>' + escapar(r.responsavel) + '</td>' +
-            '<td>' + escapar(viaturas) + '</td>' +
-            '<td>' + (kmRodado !== null ? kmRodado.toFixed(1) : '-') + '</td>' +
             '<td>' + ordensTexto + '</td>' +
             '<td><span class="status-badge ' + classeStatus(r.status) + '">' +
             escapar(r.status) + '</span></td>' +
             '<td><div class="acoes-tabela">' +
             '  <button type="button" class="btn btn-info" data-acao="ver" data-id="' + r.id + '">Ver</button>' +
             '  <button type="button" class="btn btn-warning" data-acao="editar" data-id="' + r.id + '">Editar</button>' +
+            '  <button type="button" class="btn btn-whatsapp" data-acao="whatsapp" data-id="' + r.id + '">WhatsApp</button>' +
             '  <button type="button" class="btn btn-secondary" data-acao="pdf" data-id="' + r.id + '">PDF</button>' +
             '  <button type="button" class="btn btn-danger" data-acao="excluir" data-id="' + r.id + '">Excluir</button>' +
             '</div></td>';
 
         return tr;
-    }
-
-    function calcularKmRodado(r) {
-        var inicial = parseFloat(r.km_inicial);
-        var final = parseFloat(r.km_final);
-        if (isNaN(inicial) || isNaN(final)) return null;
-        return final - inicial;
     }
 
     function classeStatus(status) {
@@ -702,10 +675,6 @@
             turno: valorDe('turno'),
             equipe: valorDe('equipe'),
             responsavel: valorDe('responsavel'),
-            motoristas: obterValoresMultiSelect('motoristas'),
-            viaturas_utilizadas: obterValoresMultiSelect('viaturas_utilizadas'),
-            km_inicial: numeroOuNulo(valorDe('km_inicial')),
-            km_final: numeroOuNulo(valorDe('km_final')),
             bairros_patrulhados: textoOuNulo(valorDe('bairros_patrulhados')),
             ocorrencias_atendidas: textoOuNulo(valorDe('ocorrencias_atendidas')),
             materiais_utilizados: textoOuNulo(valorDe('materiais_utilizados')),
@@ -726,20 +695,6 @@
         if (!p.turno) return 'Selecione o turno.';
         if (!p.equipe) return 'Selecione a equipe.';
         if (!p.responsavel) return 'Selecione o responsável.';
-        if (!p.motoristas || p.motoristas.length === 0) {
-            return 'Selecione ao menos um motorista participante.';
-        }
-        if (!p.viaturas_utilizadas || p.viaturas_utilizadas.length === 0) {
-            return 'Selecione ao menos uma viatura utilizada.';
-        }
-        if (p.km_inicial === null) return 'Informe a quilometragem inicial.';
-        if (p.km_final === null) return 'Informe a quilometragem final.';
-        if (p.km_inicial < 0 || p.km_final < 0) {
-            return 'A quilometragem não pode ser negativa.';
-        }
-        if (p.km_final < p.km_inicial) {
-            return 'A quilometragem final deve ser maior ou igual à inicial.';
-        }
         if (!p.bairros_patrulhados) return 'Informe os bairros patrulhados.';
         if (!p.status) return 'Selecione o status do relatório.';
         if (!p.assinatura_responsavel) return 'Informe a assinatura do responsável.';
@@ -763,8 +718,6 @@
         definirValor('turno', r.turno || '');
         definirValor('equipe', r.equipe || '');
         definirValor('responsavel', r.responsavel || '');
-        definirValor('km_inicial', r.km_inicial ?? '');
-        definirValor('km_final', r.km_final ?? '');
         definirValor('bairros_patrulhados', r.bairros_patrulhados || '');
         definirValor('ocorrencias_atendidas', r.ocorrencias_atendidas || '');
         definirValor('materiais_utilizados', r.materiais_utilizados || '');
@@ -773,9 +726,6 @@
         definirValor('observacoes', r.observacoes || '');
         definirValor('status', r.status || '');
         definirValor('assinatura_responsavel', r.assinatura_responsavel || '');
-
-        definirValoresMultiSelect('motoristas', r.motoristas || []);
-        definirValoresMultiSelect('viaturas_utilizadas', r.viaturas_utilizadas || []);
 
         estado.itensForm = (estado.itensPorRelatorio[r.id] || []).map(function (item) {
             return Object.assign(itemVazio(), {
@@ -857,7 +807,6 @@
         var r = estado.registros.find(function (item) { return item.id === id; });
         if (!r) return;
 
-        var kmRodado = calcularKmRodado(r);
         var conteudo = document.getElementById('detalheConteudo');
         var itensRelatorio = estado.itensPorRelatorio[r.id] || [];
 
@@ -867,12 +816,7 @@
             item('Turno', r.turno) +
             item('Equipe', r.equipe) +
             item('Responsável', r.responsavel) +
-            item('KM inicial', r.km_inicial) +
-            item('KM final', r.km_final) +
-            item('KM rodado', kmRodado !== null ? kmRodado.toFixed(1) : '-') +
             item('Status', r.status) +
-            item('Motoristas', (r.motoristas || []).join(', ')) +
-            item('Viaturas', (r.viaturas_utilizadas || []).join(', ')) +
             item('Assinatura', r.assinatura_responsavel) +
             '</div>' +
             blocoItensDetalhe(itensRelatorio) +
@@ -885,6 +829,9 @@
 
         var btnPdf = document.getElementById('detalhePdfBtn');
         btnPdf.onclick = function () { gerarPdfRelatorio(id); };
+
+        var btnWhatsapp = document.getElementById('detalheWhatsappBtn');
+        if (btnWhatsapp) btnWhatsapp.onclick = function () { compartilharWhatsapp(id); };
 
         document.getElementById('detalheModal').style.display = 'flex';
     }
@@ -940,7 +887,6 @@
         var r = estado.registros.find(function (item) { return item.id === id; });
         if (!r || !window.GML_PDF) return;
 
-        var kmRodado = calcularKmRodado(r);
         var itensRelatorio = estado.itensPorRelatorio[r.id] || [];
 
         var linhasItens = itensRelatorio.map(function (i) {
@@ -962,14 +908,6 @@
                 { label: 'Equipe', valor: r.equipe },
                 { label: 'Responsável', valor: r.responsavel },
                 { label: 'Status', valor: r.status },
-                { label: 'KM rodado', valor: kmRodado !== null ? kmRodado.toFixed(1) : '-' },
-            ]) + '</div>' +
-            '<div class="pdf-secao"><h2>Recursos empregados</h2>' +
-            GML_PDF.blocoGrid([
-                { label: 'KM inicial', valor: r.km_inicial },
-                { label: 'KM final', valor: r.km_final },
-                { label: 'Viaturas utilizadas', valor: (r.viaturas_utilizadas || []).join(', ') },
-                { label: 'Motoristas', valor: (r.motoristas || []).join(', ') },
             ]) + '</div>' +
             GML_PDF.blocoTabela('Atividades por Ordem de Serviço',
                 ['Nº da O.S.', 'Status', 'Atividade realizada', 'Qtd.', 'Unidade', 'Observações / Motivo'],
@@ -990,6 +928,99 @@
                 'Comando da Guarda Municipal',
             ],
         });
+    }
+
+    // ---------------------------------------------------------------
+    // COMPARTILHAR NO WHATSAPP
+    // ---------------------------------------------------------------
+    // Monta um texto simples (formatação *negrito* do próprio WhatsApp)
+    // com o resumo do relatório, pronto para colar numa conversa.
+    function montarTextoWhatsapp(r) {
+        var itensRelatorio = estado.itensPorRelatorio[r.id] || [];
+        var linhas = [];
+
+        linhas.push('📋 *RELATÓRIO DIÁRIO — GML*');
+        linhas.push('📅 *Data:* ' + formatarData(r.data));
+        if (r.turno) linhas.push('🕐 *Turno:* ' + r.turno);
+        if (r.equipe) linhas.push('👥 *Equipe:* ' + r.equipe);
+        if (r.responsavel) linhas.push('👤 *Responsável:* ' + r.responsavel);
+        if (r.status) linhas.push('📌 *Status:* ' + r.status);
+
+        function blocoTexto(titulo, texto) {
+            if (!texto) return;
+            linhas.push('');
+            linhas.push('*' + titulo + ':*');
+            linhas.push(texto);
+        }
+
+        blocoTexto('Bairros patrulhados', r.bairros_patrulhados);
+        blocoTexto('Ocorrências atendidas', r.ocorrencias_atendidas);
+
+        if (itensRelatorio.length > 0) {
+            linhas.push('');
+            linhas.push('*Atividades por Ordem de Serviço:*');
+            itensRelatorio.forEach(function (item, indice) {
+                linhas.push((indice + 1) + '. ' + item.numero_ordem + ' — ' + item.status_os);
+                if (item.atividade_realizada) linhas.push('   Atividade: ' + item.atividade_realizada);
+                if (item.quantidade !== null && item.quantidade !== undefined && item.quantidade !== '') {
+                    linhas.push('   Qtd: ' + item.quantidade + (item.unidade_medida ? ' ' + item.unidade_medida : ''));
+                }
+                if (item.status_os === 'Não concluída' && item.motivo) {
+                    linhas.push('   Motivo: ' + item.motivo);
+                } else if (item.observacoes) {
+                    linhas.push('   Obs: ' + item.observacoes);
+                }
+            });
+        }
+
+        blocoTexto('Materiais utilizados', r.materiais_utilizados);
+        blocoTexto('Alterações nas viaturas', r.alteracoes_viaturas);
+        blocoTexto('Abastecimentos realizados', r.abastecimentos_realizados);
+        blocoTexto('Observações', r.observacoes);
+
+        if (r.assinatura_responsavel) {
+            linhas.push('');
+            linhas.push('✍️ Assinatura: ' + r.assinatura_responsavel);
+        }
+
+        return linhas.join('\n');
+    }
+
+    function copiarTextoFallback(texto) {
+        var textarea = document.createElement('textarea');
+        textarea.value = texto;
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.focus();
+        textarea.select();
+        var copiou = false;
+        try { copiou = document.execCommand('copy'); } catch (e) { copiou = false; }
+        document.body.removeChild(textarea);
+        return copiou;
+    }
+
+    function compartilharWhatsapp(id) {
+        var r = estado.registros.find(function (item) { return item.id === id; });
+        if (!r) return;
+
+        var texto = montarTextoWhatsapp(r);
+
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(texto).then(function () {
+                mostrarToast('Texto copiado! Já pode colar no WhatsApp.', 'success');
+            }).catch(function () {
+                var copiou = copiarTextoFallback(texto);
+                mostrarToast(copiou
+                    ? 'Texto copiado! Já pode colar no WhatsApp.'
+                    : 'Não foi possível copiar automaticamente. Copie manualmente pela tela de detalhes.', copiou ? 'success' : 'error');
+            });
+        } else {
+            var copiou = copiarTextoFallback(texto);
+            mostrarToast(copiou
+                ? 'Texto copiado! Já pode colar no WhatsApp.'
+                : 'Não foi possível copiar automaticamente. Copie manualmente pela tela de detalhes.', copiou ? 'success' : 'error');
+        }
     }
 
     // ---------------------------------------------------------------

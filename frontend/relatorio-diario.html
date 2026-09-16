@@ -88,26 +88,6 @@
                                         </select>
                                     </div>
                                     <div class="form-group">
-                                        <label for="km_inicial" class="required">Quilometragem inicial</label>
-                                        <input type="number" id="km_inicial" name="km_inicial" min="0" step="0.1"
-                                            required>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="km_final" class="required">Quilometragem final</label>
-                                        <input type="number" id="km_final" name="km_final" min="0" step="0.1" required>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="motoristas" class="required">Motoristas participantes</label>
-                                        <select id="motoristas" name="motoristas" multiple required></select>
-                                        <small>Segure Ctrl (ou Cmd) para selecionar vários.</small>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="viaturas_utilizadas" class="required">Viaturas utilizadas</label>
-                                        <select id="viaturas_utilizadas" name="viaturas_utilizadas" multiple
-                                            required></select>
-                                        <small>Segure Ctrl (ou Cmd) para selecionar várias.</small>
-                                    </div>
-                                    <div class="form-group">
                                         <label for="status" class="required">Status do relatório</label>
                                         <select id="status" name="status" required>
                                             <option value="">Selecione...</option>
@@ -196,12 +176,6 @@
                             </select>
                         </div>
                         <div class="form-group">
-                            <label for="filtroViatura">Viatura</label>
-                            <select id="filtroViatura">
-                                <option value="">Todas</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
                             <label for="filtroNumeroOrdem">Nº da Ordem de Serviço</label>
                             <input type="text" id="filtroNumeroOrdem" placeholder="Ex: OS-20260817-...">
                         </div>
@@ -231,8 +205,6 @@
                                         <th>Turno</th>
                                         <th>Equipe</th>
                                         <th>Responsável</th>
-                                        <th>Viaturas</th>
-                                        <th>KM Rodado</th>
                                         <th>Ordens de Serviço</th>
                                         <th>Status</th>
                                         <th>Ações</th>
@@ -261,6 +233,7 @@
             <div id="detalheConteudo"></div>
             <div class="buttons" style="padding:0;">
                 <button type="button" class="btn btn-secondary" id="detalheFecharBtn">Fechar</button>
+                <button type="button" class="btn btn-whatsapp" id="detalheWhatsappBtn">📲 Copiar para WhatsApp</button>
                 <button type="button" class="btn btn-info" id="detalhePdfBtn">📄 Gerar PDF</button>
             </div>
         </div>
