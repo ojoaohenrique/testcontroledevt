@@ -575,6 +575,23 @@
         return opcoes;
     }
 
+    // Um card de atividade "em branco" (adicionado com o botão, mas nunca
+    // preenchido) não conta como uma tentativa real de registrar uma O.S.
+    function itemEstaPreenchido(item) {
+        return !!(
+            item.ordem_servico_id ||
+            item.status_os ||
+            (item.atividade_realizada || '').trim() ||
+            (item.quantidade !== '' && item.quantidade !== null && item.quantidade !== undefined) ||
+            (item.observacoes || '').trim() ||
+            (item.motivo || '').trim()
+        );
+    }
+
+    function itensPreenchidos(itens) {
+        return (itens || []).filter(itemEstaPreenchido);
+    }
+
     function validarItens(itens) {
         // Nem todo dia tem Ordem de Serviço: a lista pode ficar vazia.
         // Se o usuário adicionar alguma atividade, ela precisa vir completa.
@@ -600,7 +617,7 @@
     }
 
     function montarPayloadItens(relatorioId) {
-        return estado.itensForm.map(function (item) {
+        return itensPreenchidos(estado.itensForm).map(function (item) {
             return {
                 relatorio_diario_id: relatorioId,
                 ordem_servico_id: item.ordem_servico_id || null,
@@ -626,7 +643,7 @@
         erroEl.style.display = 'none';
 
         var payload = montarPayload();
-        var erro = validar(payload) || validarItens(estado.itensForm);
+        var erro = validar(payload) || validarItens(itensPreenchidos(estado.itensForm));
 
         if (erro) {
             erroEl.textContent = erro;
@@ -669,10 +686,13 @@
                 if (exclusao.error) throw exclusao.error;
             }
 
-            var itensInsercao = await supabase
-                .from('relatorio_diario_itens')
-                .insert(montarPayloadItens(relatorioId));
-            if (itensInsercao.error) throw itensInsercao.error;
+            var itensParaSalvar = montarPayloadItens(relatorioId);
+            if (itensParaSalvar.length > 0) {
+                var itensInsercao = await supabase
+                    .from('relatorio_diario_itens')
+                    .insert(itensParaSalvar);
+                if (itensInsercao.error) throw itensInsercao.error;
+            }
 
             mostrarToast(estado.editandoId
                 ? 'Relatório atualizado com sucesso!'
