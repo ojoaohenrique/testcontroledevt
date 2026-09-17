@@ -576,8 +576,10 @@
     }
 
     function validarItens(itens) {
+        // Nem todo dia tem Ordem de Serviço: a lista pode ficar vazia.
+        // Se o usuário adicionar alguma atividade, ela precisa vir completa.
         if (!itens || itens.length === 0) {
-            return 'Adicione ao menos uma atividade vinculada a uma Ordem de Serviço.';
+            return null;
         }
         for (var i = 0; i < itens.length; i++) {
             var item = itens[i];
