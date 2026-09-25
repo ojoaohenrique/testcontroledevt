@@ -10,7 +10,7 @@
     // ===============================================================
 
     var STORAGE_KEY = 'gml_gate_ok';
-    var SENHA = 'guarda2026';
+    var SENHA = '159753';
 
     try {
         if (localStorage.getItem(STORAGE_KEY) === '1') return;
