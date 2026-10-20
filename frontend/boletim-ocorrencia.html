@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <script src="js/siteGate.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0056b3">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="description" content="GML - Boletim de Ocorrência (B.O.) da Guarda Municipal de Laguna">
+    <title>GML - B.O.</title>
+
+    <script>
+        window.ENV_SUPABASE_URL = "https://oyqivykvwwxvqlcxcmeq.supabase.co";
+        window.ENV_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im95cWl2eWt2d3d4dnFsY3hjbWVxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk2MzM0MjEsImV4cCI6MjEwNTIwOTQyMX0.jAx6q1Myox5d3WQjaF7X0Tg_2VQwFX9ODJoagn79KCY";
+    </script>
+
+    <link rel="manifest" href="manifest.json" />
+    <link rel="apple-touch-icon" href="icons/icon-192x192.png">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/viaturas.css">
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/modulos.css">
+</head>
+
+<body>
+    <div class="container">
+        <div class="app-layout">
+            <aside class="sidebar" id="sidebar"></aside>
+
+            <div class="app-main">
+                <header id="headerUsuario"></header>
+
+                <main>
+                    <header class="topbar">
+                        <div class="topbar-left">
+                            <h1>🚨 B.O. — Auto de Remoção de Veículo</h1>
+                            <p>Registro dos boletins de remoção/recolhimento de veículos da Guarda Municipal</p>
+                        </div>
+                        <div class="topbar-stats">
+                            <div class="stat-card">
+                                <span class="stat-label">Boletins emitidos</span>
+                                <span class="stat-value" id="contadorBoletins">0</span>
+                            </div>
+                        </div>
+                    </header>
+
+                    <!-- ============ FORMULÁRIO ============ -->
+                    <div class="form-container" style="min-width:0;margin-bottom:24px;">
+                        <div class="header" id="formTitulo">Novo Boletim de Ocorrência</div>
+                        <form id="boletimForm" novalidate>
+                            <input type="hidden" id="boletimId">
+
+                            <div class="form-body">
+                                <div class="form-grid">
+                                    <div class="form-group">
+                                        <label for="numero_bo">Número do B.O.</label>
+                                        <input type="text" id="numero_bo" name="numero_bo" readonly
+                                            class="readonly-input" placeholder="Gerado automaticamente ao salvar">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="data_hora" class="required">Data/Hora</label>
+                                        <input type="datetime-local" id="data_hora" name="data_hora" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="local" class="required">Local</label>
+                                        <input type="text" id="local" name="local" required
+                                            placeholder="Ex: Rua Prefeito Gil Ungaretti">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="local_complemento">Complemento do local</label>
+                                        <input type="text" id="local_complemento" name="local_complemento"
+                                            placeholder="Ex: Fundos do colégio Comendador Rocha">
+                                    </div>
+                                </div>
+
+                                <div class="form-group form-group-full-width">
+                                    <h3 style="margin:8px 0 0;color:var(--azul-cconet);font-size:1rem;">Motivo do Recolhimento</h3>
+                                </div>
+                                <div class="form-grid">
+                                    <div class="form-group">
+                                        <label for="motivo_recolhimento" class="required">Motivo do recolhimento</label>
+                                        <input type="text" id="motivo_recolhimento" name="motivo_recolhimento" required
+                                            placeholder="Ex: Estacionamento Irregular">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="infracao">Infração</label>
+                                        <input type="text" id="infracao" name="infracao"
+                                            placeholder="Ex: 54522 – Estacionar sobre faixa de pedestres">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="ait_numero">AIT Nº</label>
+                                        <input type="text" id="ait_numero" name="ait_numero">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="medida_administrativa">Medida administrativa</label>
+                                        <input type="text" id="medida_administrativa" name="medida_administrativa"
+                                            placeholder="Ex: Recolhimento de Veículo">
+                                    </div>
+                                </div>
+
+                                <div class="form-group form-group-full-width">
+                                    <h3 style="margin:8px 0 0;color:var(--azul-cconet);font-size:1rem;">Identificação do Veículo</h3>
+                                </div>
+                                <div class="form-grid">
+                                    <div class="form-group">
+                                        <label for="veiculo_placa" class="required">Placa</label>
+                                        <input type="text" id="veiculo_placa" name="veiculo_placa" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="veiculo_pais">País</label>
+                                        <input type="text" id="veiculo_pais" name="veiculo_pais">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="veiculo_especie">Espécie</label>
+                                        <input type="text" id="veiculo_especie" name="veiculo_especie"
+                                            placeholder="Ex: 1-Passageiro">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="veiculo_tipo">Tipo</label>
+                                        <input type="text" id="veiculo_tipo" name="veiculo_tipo"
+                                            placeholder="Ex: AUTOMOVEL">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="veiculo_marca_modelo">Marca/Modelo</label>
+                                        <input type="text" id="veiculo_marca_modelo" name="veiculo_marca_modelo">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="veiculo_uf">UF</label>
+                                        <input type="text" id="veiculo_uf" name="veiculo_uf" maxlength="2"
+                                            style="text-transform:uppercase;">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="veiculo_municipio">Município</label>
+                                        <input type="text" id="veiculo_municipio" name="veiculo_municipio">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="veiculo_categoria">Categoria</label>
+                                        <input type="text" id="veiculo_categoria" name="veiculo_categoria"
+                                            placeholder="Ex: 1-Particular">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="veiculo_lugares">Lugares</label>
+                                        <input type="text" id="veiculo_lugares" name="veiculo_lugares">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="veiculo_chassi">Chassi</label>
+                                        <input type="text" id="veiculo_chassi" name="veiculo_chassi">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="veiculo_renavam">Renavam</label>
+                                        <input type="text" id="veiculo_renavam" name="veiculo_renavam">
+                                    </div>
+                                </div>
+
+                                <div class="form-group form-group-full-width">
+                                    <h3 style="margin:8px 0 0;color:var(--azul-cconet);font-size:1rem;">Identificação do Proprietário</h3>
+                                </div>
+                                <div class="form-grid">
+                                    <div class="form-group">
+                                        <label for="proprietario_nome">Nome</label>
+                                        <input type="text" id="proprietario_nome" name="proprietario_nome">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="proprietario_cpf">CPF</label>
+                                        <input type="text" id="proprietario_cpf" name="proprietario_cpf">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="proprietario_rg">RG</label>
+                                        <input type="text" id="proprietario_rg" name="proprietario_rg">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="proprietario_cnh">CNH</label>
+                                        <input type="text" id="proprietario_cnh" name="proprietario_cnh">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="situacao_condutor">Situação do condutor</label>
+                                        <input type="text" id="situacao_condutor" name="situacao_condutor"
+                                            placeholder="Ex: Condutor ausente.">
+                                    </div>
+                                </div>
+
+                                <div class="form-group form-group-full-width">
+                                    <h3 style="margin:8px 0 0;color:var(--azul-cconet);font-size:1rem;">Condições do Veículo</h3>
+                                </div>
+                                <div class="form-group form-group-full-width">
+                                    <label for="avarias">Avarias</label>
+                                    <textarea id="avarias" name="avarias" rows="2"
+                                        placeholder="Descreva as avarias encontradas"></textarea>
+                                </div>
+                                <div class="form-grid">
+                                    <div class="form-group">
+                                        <label for="pneus">Pneus</label>
+                                        <input type="text" id="pneus" name="pneus" placeholder="Ex: Em bom estado">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="combustivel_nivel">Combustível</label>
+                                        <select id="combustivel_nivel" name="combustivel_nivel">
+                                            <option value="">Selecione...</option>
+                                            <option value="Não marca">Não marca</option>
+                                            <option value="Reserva">Reserva</option>
+                                            <option value="1/4">1/4</option>
+                                            <option value="Tanque médio">Tanque médio</option>
+                                            <option value="Cheio">Cheio</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="odometro">Odômetro</label>
+                                        <input type="number" id="odometro" name="odometro" min="0" step="1">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="equipamento">Equipamento</label>
+                                        <input type="text" id="equipamento" name="equipamento"
+                                            placeholder="Ex: Não informado">
+                                    </div>
+                                </div>
+                                <div class="form-group form-group-full-width">
+                                    <label for="informacoes_complementares">Informações complementares</label>
+                                    <textarea id="informacoes_complementares" name="informacoes_complementares"
+                                        rows="2"></textarea>
+                                </div>
+                                <div class="form-group form-group-full-width">
+                                    <label for="observacoes">Observações</label>
+                                    <textarea id="observacoes" name="observacoes" rows="2"></textarea>
+                                </div>
+
+                                <div class="form-group form-group-full-width">
+                                    <h3 style="margin:8px 0 0;color:var(--azul-cconet);font-size:1rem;">Transporte do Veículo</h3>
+                                </div>
+                                <div class="form-grid">
+                                    <div class="form-group">
+                                        <label for="guinchado" class="required">Guinchado</label>
+                                        <select id="guinchado" name="guinchado" required>
+                                            <option value="">Selecione...</option>
+                                            <option value="SIM">SIM</option>
+                                            <option value="NÃO">NÃO</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="empresa_guincho">Empresa do guincho</label>
+                                        <input type="text" id="empresa_guincho" name="empresa_guincho">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="motorista_guincho">Motorista do guincho</label>
+                                        <input type="text" id="motorista_guincho" name="motorista_guincho">
+                                    </div>
+                                </div>
+
+                                <div class="form-group form-group-full-width">
+                                    <h3 style="margin:8px 0 0;color:var(--azul-cconet);font-size:1rem;">Agente Responsável</h3>
+                                </div>
+                                <div class="form-grid">
+                                    <div class="form-group">
+                                        <label for="agente_responsavel" class="required">Agente responsável</label>
+                                        <select id="agente_responsavel" name="agente_responsavel" required>
+                                            <option value="">Selecione...</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="matricula_agente">Matrícula</label>
+                                        <input type="text" id="matricula_agente" name="matricula_agente">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="assinatura">Assinatura</label>
+                                        <input type="text" id="assinatura" name="assinatura"
+                                            placeholder="Nome de quem assina">
+                                    </div>
+                                </div>
+
+                                <p id="formErro" class="form-erro" style="display:none;"></p>
+                            </div>
+
+                            <div class="buttons">
+                                <button type="button" class="btn btn-secondary" id="btnCancelarEdicao"
+                                    style="display:none;">Cancelar edição</button>
+                                <button type="reset" class="btn btn-secondary">Limpar</button>
+                                <button type="submit" class="btn btn-primary" id="btnSalvar">Salvar B.O.</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- ============ FILTROS ============ -->
+                    <div class="filtros-wrapper">
+                        <div class="form-group">
+                            <label for="filtroBusca">🔎 Busca dinâmica</label>
+                            <input type="text" id="filtroBusca" placeholder="Número, placa, local, proprietário...">
+                        </div>
+                        <div class="form-group">
+                            <label for="filtroData">Data</label>
+                            <input type="date" id="filtroData">
+                        </div>
+                        <div class="form-group">
+                            <label for="filtroAgente">Agente responsável</label>
+                            <select id="filtroAgente">
+                                <option value="">Todos</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="display:flex;align-items:flex-end;">
+                            <button type="button" class="btn btn-secondary" id="btnLimparFiltros">Limpar
+                                filtros</button>
+                        </div>
+                    </div>
+
+                    <!-- ============ TABELA ============ -->
+                    <div class="registro-container">
+                        <h3>Boletins cadastrados</h3>
+                        <div class="table-responsive">
+                            <table id="tabelaBoletins">
+                                <thead>
+                                    <tr>
+                                        <th>Número</th>
+                                        <th>Data/Hora</th>
+                                        <th>Local</th>
+                                        <th>Placa</th>
+                                        <th>Proprietário</th>
+                                        <th>Agente</th>
+                                        <th>Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tabelaBoletinsBody"></tbody>
+                            </table>
+                        </div>
+                        <div id="paginacaoBoletins"></div>
+                    </div>
+                </main>
+
+                <footer>
+                    <div class="footer">
+                        © 2026 GUARDA MUNICIPAL DE LAGUNA
+                    </div>
+                </footer>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ MODAL DE DETALHES ============ -->
+    <div class="modal-overlay" id="detalheModal">
+        <div class="modal-content modal-content-lg">
+            <h3>Detalhes do Boletim de Ocorrência</h3>
+            <div id="detalheConteudo"></div>
+            <div class="buttons" style="padding:0;">
+                <button type="button" class="btn btn-secondary" id="detalheFecharBtn">Fechar</button>
+                <button type="button" class="btn btn-info" id="detalhePdfBtn">📄 Gerar PDF</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 1º: SDK do Supabase (Obrigatório) -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- 2º: Configuração e conexão -->
+    <script src="js/config.js"></script>
+    <script src="js/supabaseClient.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+
+    <!-- 3º: Componentes e utilitários compartilhados -->
+    <script src="js/utils.js"></script>
+    <script src="js/dadosComuns.js"></script>
+    <script src="js/components/layout.js"></script>
+    <script src="js/components/pdf.js"></script>
+
+    <!-- 4º: Lógica da página -->
+    <script src="js/boletimOcorrencia.js"></script>
+    <script src="js/pwa.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", async function () {
+            requireAuth();
+            initLayout();
+            await initBoletimOcorrencia();
+            registerPWA();
+        });
+    </script>
+</body>
+
+</html>
