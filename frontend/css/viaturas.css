@@ -209,6 +209,24 @@ thead tr {
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
 }
 
+/* Janela de detalhes: nunca maior que a tela, com rolagem interna */
+.modal-content {
+    max-height: 90vh;
+    overflow-y: auto;
+    box-sizing: border-box;
+}
+
+.modal-content-lg {
+    max-width: 820px;
+}
+
+.modal-content .buttons {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
 #modalErro {
     color: red;
     font-size: 0.9em;

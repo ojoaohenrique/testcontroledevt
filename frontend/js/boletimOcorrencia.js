@@ -113,6 +113,7 @@
                 else if (acao === 'editar') iniciarEdicao(id);
                 else if (acao === 'excluir') handleExcluir(id);
                 else if (acao === 'pdf') gerarPdfBoletim(id);
+                else if (acao === 'word') gerarWordBoletim(id);
             });
         }
 
@@ -235,6 +236,7 @@
             '  <button type="button" class="btn btn-info" data-acao="ver" data-id="' + b.id + '">Ver</button>' +
             '  <button type="button" class="btn btn-warning" data-acao="editar" data-id="' + b.id + '">Editar</button>' +
             '  <button type="button" class="btn btn-secondary" data-acao="pdf" data-id="' + b.id + '">PDF</button>' +
+            '  <button type="button" class="btn btn-primary" data-acao="word" data-id="' + b.id + '">Word</button>' +
             '  <button type="button" class="btn btn-danger" data-acao="excluir" data-id="' + b.id + '">Excluir</button>' +
             '</div></td>';
 
@@ -556,6 +558,9 @@
         var btnPdf = document.getElementById('detalhePdfBtn');
         btnPdf.onclick = function () { gerarPdfBoletim(id); };
 
+        var btnWord = document.getElementById('detalheWordBtn');
+        if (btnWord) btnWord.onclick = function () { gerarWordBoletim(id); };
+
         document.getElementById('detalheModal').style.display = 'flex';
     }
 
@@ -602,6 +607,13 @@
         var dtl = paraDateTimeLocal(valor);
         var partes = dtl ? dtl.split('T') : [];
         return partes[1] || '-';
+    }
+
+    // Documento Word no modelo oficial do Auto de Remocao (modelos/auto_remocao_modelo.docx)
+    function gerarWordBoletim(id) {
+        var b = estado.registros.find(function (item) { return item.id === id; });
+        if (!b || !window.GML_AUTO_REMOCAO) return;
+        window.GML_AUTO_REMOCAO.gerarWord(b);
     }
 
     function gerarPdfBoletim(id) {
