@@ -1,0 +1,701 @@
+/* =================================================================
+   GML - Tema visual (Guarda Municipal de Laguna)
+   Carregado por ultimo em todas as paginas: sobrepoe base.css,
+   viaturas.css, layout.css, modulos.css, dashboard.css e login.css.
+   Paleta tirada do brasao: azul-marinho + detalhe dourado.
+   ================================================================= */
+
+:root {
+    --gm-marinho: #0b1340;
+    --gm-marinho-2: #15235f;
+    --gm-azul: #1d4ea3;
+    --gm-azul-hover: #173f86;
+    --gm-dourado: #e0a91b;
+    --gm-fundo: #eef2f8;
+    --gm-superficie: #ffffff;
+    --gm-texto: #1e293b;
+    --gm-texto-suave: #64748b;
+    --gm-borda: #dbe2ec;
+    --gm-borda-forte: #c5cfdd;
+    --gm-raio: 12px;
+    --gm-raio-sm: 8px;
+    --gm-sombra: 0 1px 2px rgba(15, 23, 42, 0.04), 0 4px 14px rgba(15, 23, 42, 0.06);
+    --gm-sombra-forte: 0 12px 40px rgba(11, 19, 64, 0.25);
+    --gm-fonte: "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif;
+
+    /* variaveis antigas, agora na paleta nova */
+    --azul-cconet: #15306e;
+    --azul-claro: #eaf0fb;
+    --cinza-borda: var(--gm-borda);
+    --cinza-texto: var(--gm-texto-suave);
+    --cinza-fundo: var(--gm-fundo);
+}
+
+/* ------------------------------------------------------------ base */
+body {
+    font-family: var(--gm-fonte);
+    background: var(--gm-fundo);
+    color: var(--gm-texto);
+    font-size: 15px;
+    line-height: 1.45;
+    -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4 {
+    color: var(--azul-cconet);
+    letter-spacing: -0.01em;
+}
+
+::selection {
+    background: rgba(29, 78, 163, 0.18);
+}
+
+/* --------------------------------------------------------- botoes */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 9px 18px;
+    border-radius: var(--gm-raio-sm);
+    font-family: inherit;
+    font-weight: 600;
+    font-size: 0.9rem;
+    line-height: 1.2;
+    border: 1px solid transparent;
+    transition: background-color 0.15s ease, box-shadow 0.15s ease, transform 0.05s ease, filter 0.15s ease;
+}
+
+.btn:hover:not(:disabled) {
+    filter: brightness(0.94);
+}
+
+.btn:active:not(:disabled) {
+    transform: translateY(1px);
+}
+
+.btn:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(29, 78, 163, 0.3);
+}
+
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.btn-primary {
+    background: var(--gm-azul);
+    color: #fff;
+}
+
+.btn-primary:hover:not(:disabled) {
+    background: var(--gm-azul-hover);
+    filter: none;
+}
+
+.btn-secondary {
+    background: #fff;
+    color: var(--gm-texto);
+    border-color: var(--gm-borda-forte);
+}
+
+.btn-secondary:hover:not(:disabled) {
+    background: #f3f6fa;
+    filter: none;
+}
+
+.btn-success { background: #16a34a; color: #fff; }
+.btn-danger  { background: #dc2626; color: #fff; }
+.btn-warning { background: #f59e0b; color: #1f2937; }
+.btn-info    { background: #0e7490; color: #fff; }
+
+/* -------------------------------------------------- layout geral */
+.app-layout {
+    min-height: calc(100vh - 40px);
+}
+
+/* Menu lateral escuro com o brasao */
+.sidebar {
+    width: 250px;
+    background: linear-gradient(180deg, var(--gm-marinho) 0%, var(--gm-marinho-2) 100%);
+    border: none;
+    border-radius: var(--gm-raio);
+    box-shadow: var(--gm-sombra);
+    margin-right: 20px;
+    color: #fff;
+}
+
+.sidebar-inner {
+    padding: 22px 0 18px;
+}
+
+.sidebar-brand {
+    flex-direction: column;
+    text-align: center;
+    gap: 10px;
+    padding: 0 16px 18px;
+    margin-bottom: 14px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+    color: #fff;
+}
+
+.sidebar-brand-logo {
+    width: 84px;
+    height: auto;
+    filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.35));
+}
+
+.sidebar-brand strong {
+    display: block;
+    font-size: 0.95rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.sidebar-brand small {
+    color: rgba(255, 255, 255, 0.65);
+    font-size: 0.72rem;
+    letter-spacing: 0.03em;
+    margin-top: 2px;
+}
+
+.sidebar-nav {
+    padding: 0 10px;
+    gap: 2px;
+}
+
+.sidebar-link {
+    position: relative;
+    color: rgba(255, 255, 255, 0.78);
+    padding: 10px 14px;
+    border-radius: var(--gm-raio-sm);
+    font-weight: 500;
+}
+
+.sidebar-link:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+}
+
+.sidebar-link.active {
+    background: rgba(255, 255, 255, 0.14);
+    color: #fff;
+    font-weight: 600;
+}
+
+.sidebar-link.active::before {
+    content: "";
+    position: absolute;
+    left: -10px;
+    top: 8px;
+    bottom: 8px;
+    width: 4px;
+    border-radius: 0 4px 4px 0;
+    background: var(--gm-dourado);
+}
+
+.sidebar-icon {
+    width: 22px;
+    text-align: center;
+}
+
+.sidebar-rodape {
+    margin: 18px 16px 0;
+    padding-top: 14px;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+    font-size: 0.7rem;
+    color: rgba(255, 255, 255, 0.5);
+    text-align: center;
+}
+
+/* Barra do usuario */
+.header-usuario {
+    background: var(--gm-superficie);
+    border: 1px solid var(--gm-borda);
+    border-radius: var(--gm-raio);
+    padding: 10px 16px;
+    box-shadow: var(--gm-sombra);
+}
+
+.header-usuario-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.header-usuario-avatar {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: var(--gm-marinho);
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    flex-shrink: 0;
+}
+
+.header-usuario-nome {
+    color: var(--gm-texto);
+    font-weight: 600;
+    font-size: 0.92rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.sidebar-toggle {
+    border-color: var(--gm-borda-forte);
+    border-radius: var(--gm-raio-sm);
+    color: var(--gm-marinho);
+    background: #fff;
+}
+
+/* Titulo da pagina */
+.topbar {
+    margin-bottom: 20px;
+}
+
+.topbar-left h1,
+.topbar h1 {
+    font-size: 1.55rem;
+    font-weight: 700;
+    color: var(--gm-marinho);
+}
+
+.topbar-left p,
+.topbar p {
+    color: var(--gm-texto-suave);
+}
+
+/* Cartoes de numeros */
+.stat-card {
+    position: relative;
+    background: var(--gm-superficie);
+    border: 1px solid var(--gm-borda);
+    border-radius: var(--gm-raio);
+    padding: 12px 16px 12px 18px;
+    box-shadow: var(--gm-sombra);
+    overflow: hidden;
+}
+
+.stat-card::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: var(--gm-azul);
+}
+
+.stat-label {
+    color: var(--gm-texto-suave);
+    font-size: 0.7rem;
+    font-weight: 600;
+}
+
+.stat-value {
+    color: var(--gm-marinho);
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+/* -------------------------------------------- formularios e cartoes */
+.form-container,
+.registro-container,
+.filtros-wrapper,
+.dashboard-chart {
+    background: var(--gm-superficie);
+    border: 1px solid var(--gm-borda);
+    border-radius: var(--gm-raio);
+    box-shadow: var(--gm-sombra);
+}
+
+.form-container > .header,
+.form-container .header {
+    background: linear-gradient(90deg, var(--gm-marinho) 0%, var(--gm-marinho-2) 100%);
+    border-bottom: 3px solid var(--gm-dourado);
+    font-size: 1.1rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    padding: 14px 22px;
+}
+
+.form-body {
+    padding: 22px;
+}
+
+.form-grid {
+    gap: 4px 18px;
+}
+
+label {
+    color: #334155;
+    font-weight: 600;
+    font-size: 0.86rem;
+    margin-bottom: 6px;
+}
+
+label.required::after {
+    color: #dc2626;
+}
+
+input[type="text"],
+input[type="number"],
+input[type="date"],
+input[type="time"],
+input[type="datetime-local"],
+input[type="email"],
+input[type="password"],
+input[type="file"],
+textarea,
+select {
+    font-family: inherit;
+    font-size: 0.93rem;
+    color: var(--gm-texto);
+    padding: 9px 12px;
+    border: 1px solid var(--gm-borda-forte);
+    border-radius: var(--gm-raio-sm);
+    background-color: #fff;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    min-height: 40px;
+}
+
+textarea {
+    resize: vertical;
+}
+
+input:hover,
+textarea:hover,
+select:hover {
+    border-color: #a9b6c9;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+    outline: none;
+    border-color: var(--gm-azul);
+    box-shadow: 0 0 0 3px rgba(29, 78, 163, 0.15);
+}
+
+input[readonly],
+.readonly-input {
+    background: #f4f6fa;
+    color: var(--gm-texto-suave);
+}
+
+::placeholder {
+    color: #9aa7b8;
+}
+
+/* Titulos de secao dentro dos formularios (h3 inline do B.O.) */
+.form-body h3 {
+    color: var(--gm-marinho) !important;
+    font-size: 0.95rem !important;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--gm-borda);
+    margin-top: 14px !important;
+}
+
+.buttons {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 16px 22px;
+    border-top: 1px solid var(--gm-borda);
+    background: #f8fafc;
+}
+
+.buttons .btn {
+    margin-left: 0;
+}
+
+.form-erro {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #b91c1c;
+    border-radius: var(--gm-raio-sm);
+    padding: 10px 12px;
+}
+
+/* Filtros */
+.filtros-wrapper {
+    padding: 16px 18px;
+    align-items: flex-end;
+}
+
+/* ----------------------------------------------------------- tabelas */
+.registro-container {
+    padding: 20px 22px;
+}
+
+.registro-container h3 {
+    margin: 0;
+    color: var(--gm-marinho);
+    font-size: 1.05rem;
+}
+
+table {
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 0.9rem;
+}
+
+th,
+td {
+    border: none;
+    border-bottom: 1px solid var(--gm-borda);
+    padding: 10px 9px;
+    vertical-align: middle;
+}
+
+thead tr {
+    background: transparent;
+}
+
+thead th {
+    background: #f3f6fb;
+    color: #475569;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid var(--gm-borda-forte);
+}
+
+thead th:first-child { border-top-left-radius: var(--gm-raio-sm); }
+thead th:last-child  { border-top-right-radius: var(--gm-raio-sm); }
+
+tbody tr {
+    transition: background-color 0.12s ease;
+}
+
+tbody tr:hover {
+    background: #f7f9fd;
+}
+
+tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* Texto pode quebrar linha; numero e data ficam inteiros */
+tbody td {
+    white-space: normal;
+}
+
+tbody td:first-child {
+    white-space: nowrap;
+}
+
+.acoes-tabela {
+    display: grid;
+    grid-template-columns: repeat(2, max-content);
+    gap: 4px;
+}
+
+.acoes-tabela .btn {
+    padding: 4px 9px;
+    font-size: 0.74rem;
+    border-radius: 6px;
+}
+
+.status-badge {
+    border-radius: 999px;
+    padding: 3px 10px;
+    font-size: 0.7rem;
+    letter-spacing: 0.03em;
+}
+
+/* Paginacao */
+.paginacao .btn-pag,
+.paginacao button {
+    border-radius: var(--gm-raio-sm);
+}
+
+/* ------------------------------------------------------------ janelas */
+.modal-overlay {
+    background: rgba(11, 19, 64, 0.55);
+    backdrop-filter: blur(2px);
+    padding: 16px;
+}
+
+.modal-content {
+    border-radius: var(--gm-raio);
+    box-shadow: var(--gm-sombra-forte);
+    padding: 24px;
+}
+
+.modal-content h3 {
+    margin-top: 0;
+    color: var(--gm-marinho);
+}
+
+.modal-content .buttons {
+    background: transparent;
+    border-top: 1px solid var(--gm-borda);
+    padding: 14px 0 0 !important;
+    margin-top: 8px;
+}
+
+.detalhe-item {
+    background: #f4f7fc;
+    border: 1px solid #e3e9f3;
+    border-radius: var(--gm-raio-sm);
+}
+
+.detalhe-item label {
+    color: var(--gm-texto-suave);
+    font-size: 0.68rem;
+    letter-spacing: 0.05em;
+}
+
+.detalhe-item p {
+    color: var(--gm-texto);
+    font-weight: 600;
+}
+
+.detalhe-texto {
+    border-radius: var(--gm-raio-sm);
+}
+
+/* Fotos do B.O. */
+.foto-card {
+    border-radius: var(--gm-raio-sm);
+    border-color: var(--gm-borda);
+    box-shadow: var(--gm-sombra);
+}
+
+/* ------------------------------------------------------------ rodape */
+footer,
+.footer {
+    border-top: 1px solid var(--gm-borda);
+    color: var(--gm-texto-suave);
+    letter-spacing: 0.04em;
+}
+
+/* -------------------------------------------------------------- login */
+body:has(.login-container) {
+    padding: 0;
+}
+
+.login-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    background:
+        radial-gradient(circle at 20% 10%, rgba(29, 78, 163, 0.55), transparent 55%),
+        linear-gradient(160deg, var(--gm-marinho) 0%, var(--gm-marinho-2) 60%, #1b2f7a 100%);
+    padding: 24px 16px;
+}
+
+.login-card {
+    background: #fff;
+    width: 100%;
+    border-radius: 16px;
+    padding: 34px 30px 30px;
+    max-width: 400px;
+    box-shadow: var(--gm-sombra-forte);
+    text-align: left;
+    border-top: 4px solid var(--gm-dourado);
+}
+
+.login-logo {
+    display: block;
+    width: 96px;
+    height: auto;
+    margin: 0 auto 14px;
+    filter: drop-shadow(0 6px 14px rgba(11, 19, 64, 0.25));
+}
+
+.login-card h1 {
+    text-align: center;
+    color: var(--gm-marinho);
+    font-size: 1.3rem;
+    margin-bottom: 4px;
+}
+
+.login-subtitle {
+    text-align: center;
+}
+
+.login-card .btn-full {
+    width: 100%;
+    margin-left: 0;
+    padding: 11px 18px;
+    font-size: 0.95rem;
+}
+
+.login-instituicao {
+    text-align: center;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.75rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-top: 18px;
+}
+
+/* ------------------------------------------------------------ celular */
+@media (max-width: 900px) {
+    .sidebar {
+        width: 260px;
+        top: 0;
+        bottom: 0;
+        height: 100vh;
+        height: 100dvh;
+        max-height: none;
+        overflow-y: auto;
+        border-radius: 0;
+        box-shadow: var(--gm-sombra-forte);
+    }
+
+    body.sidebar-open::after {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background: rgba(11, 19, 64, 0.45);
+        z-index: 999;
+    }
+}
+
+@media (max-width: 768px) {
+    body {
+        font-size: 14px;
+    }
+
+    .form-body,
+    .registro-container {
+        padding: 16px;
+    }
+
+    .buttons {
+        padding: 12px 16px;
+    }
+
+    .buttons .btn {
+        flex: 1 1 auto;
+    }
+
+    .topbar-left h1,
+    .topbar h1 {
+        font-size: 1.3rem;
+    }
+}
+
+/* Painel (dashboard) */
+.dashboard-chart h2 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--gm-marinho);
+    margin: 0 0 12px;
+}

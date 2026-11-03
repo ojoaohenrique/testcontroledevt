@@ -29,10 +29,11 @@
         container.innerHTML =
             '<div class="sidebar-inner">' +
             '  <div class="sidebar-brand">' +
-            '    <span class="sidebar-brand-icon">🛡️</span>' +
-            '    <div><strong>GML</strong><small>Controle Operacional</small></div>' +
+            '    <img class="sidebar-brand-logo" src="icons/logo-guarda.png" alt="Brasão da Guarda Municipal de Laguna">' +
+            '    <div><strong>Guarda Municipal</strong><small>Laguna/SC · Controle Operacional</small></div>' +
             '  </div>' +
             '  <nav class="sidebar-nav">' + links + '</nav>' +
+            '  <div class="sidebar-rodape">GML · Sistema Operacional</div>' +
             '</div>';
     }
 
@@ -42,12 +43,15 @@
 
         var auth = getStoredAuth();
         var email = auth && auth.user ? auth.user.email : 'Usuário';
+        var inicial = String(email).trim().charAt(0) || 'U';
+        var emailSeguro = String(email).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
         container.innerHTML =
             '<div class="header-usuario">' +
             '  <button type="button" class="sidebar-toggle" id="btnSidebarToggle" aria-label="Menu">☰</button>' +
             '  <div class="header-usuario-info">' +
-            '    <span class="header-usuario-nome">' + email + '</span>' +
+            '    <span class="header-usuario-avatar">' + inicial.replace(/[<>&"]/g, '') + '</span>' +
+            '    <span class="header-usuario-nome">' + emailSeguro + '</span>' +
             '  </div>' +
             '  <nav class="header-usuario-nav">' +
             '    <button type="button" class="btn btn-secondary" id="btnLogout">Sair</button>' +
@@ -59,10 +63,20 @@
 
         var btnToggle = document.getElementById('btnSidebarToggle');
         if (btnToggle) {
-            btnToggle.addEventListener('click', function () {
+            btnToggle.addEventListener('click', function (e) {
+                e.stopPropagation();
                 document.body.classList.toggle('sidebar-open');
             });
         }
+
+        // No celular: tocar fora do menu fecha o menu
+        document.addEventListener('click', function (e) {
+            if (!document.body.classList.contains('sidebar-open')) return;
+            var sidebar = document.getElementById('sidebar');
+            if (sidebar && !sidebar.contains(e.target)) {
+                document.body.classList.remove('sidebar-open');
+            }
+        });
     }
 
     function initLayout() {

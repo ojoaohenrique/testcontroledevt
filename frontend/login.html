@@ -5,15 +5,17 @@
     <meta charset="UTF-8" />
     <script src="js/siteGate.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#0056b3">
+    <meta name="theme-color" content="#0b1340">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="description" content="GML - Controle de Viaturas da Guarda Municipal de Laguna">
     <title>GML - Login</title>
     <link rel="manifest" href="manifest.json" />
     <link rel="apple-touch-icon" href="icons/icon-192x192.png">
+    <link rel="icon" type="image/png" href="icons/favicon.png">
     <link rel="stylesheet" href="css/base.css" />
     <link rel="stylesheet" href="css/login.css" />
+    <link rel="stylesheet" href="css/tema.css">
     <style>
         .senha-container {
             position: relative;
@@ -50,8 +52,9 @@
 <body>
     <div class="login-container">
         <div class="login-card">
-            <h1>GML - Controle de Viaturas</h1>
-            <p class="login-subtitle">Acesse com seu e-mail institucional.</p>
+            <img class="login-logo" src="icons/logo-guarda.png" alt="Brasão da Guarda Municipal de Laguna">
+            <h1>Guarda Municipal de Laguna</h1>
+            <p class="login-subtitle">Controle Operacional · acesse com seu e-mail institucional.</p>
 
             <form id="loginForm">
                 <div class="form-group">
@@ -85,6 +88,7 @@
                 <button type="submit" class="btn btn-primary btn-full">Entrar</button>
             </form>
         </div>
+        <p class="login-instituicao">Prefeitura Municipal de Laguna · Santa Catarina</p>
     </div>
 
     <!-- Supabase JS -->
