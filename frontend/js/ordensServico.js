@@ -643,6 +643,8 @@
             equipe: o.equipe || '',
             responsavel: o.motorista || '',
             turno: 'Diurno',
+            hora_inicio: paraDateTimeLocal(o.data_hora_inicio).slice(11, 16),
+            hora_termino: paraDateTimeLocal(o.data_hora_termino).slice(11, 16),
             atividades_realizadas: o.descricao || '',
             ocorrencias_atendidas: o.resultado || '',
             observacoes: o.observacoes || '',

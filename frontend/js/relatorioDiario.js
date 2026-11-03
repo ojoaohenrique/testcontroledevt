@@ -42,7 +42,6 @@
         preencherSelect('turno', dados.TURNOS || []);
         preencherSelect('equipe', dados.EQUIPES || []);
         preencherSelect('responsavel', dados.MOTORISTAS || []);
-        preencherSelect('status', dados.STATUS_RELATORIO || []);
 
         // Filtros
         preencherSelect('filtroEquipe', dados.EQUIPES || []);
@@ -53,8 +52,13 @@
         var campoData = document.getElementById('data');
         if (campoData && !campoData.value) campoData.value = hojeISO();
 
-        var campoStatus = document.getElementById('status');
-        if (campoStatus && !campoStatus.value) campoStatus.value = 'Rascunho';
+        // Horario de inicio pre-preenchido com a hora atual
+        var campoInicio = document.getElementById('hora_inicio');
+        if (campoInicio && !campoInicio.value) {
+            var agora = new Date();
+            campoInicio.value = String(agora.getHours()).padStart(2, '0') + ':' +
+                String(agora.getMinutes()).padStart(2, '0');
+        }
 
         atualizarVisibilidadeAlteracoesViaturas();
     }
@@ -186,6 +190,8 @@
         definirValor('equipe', rascunho.equipe || '');
         definirValor('responsavel', rascunho.responsavel || '');
         definirValor('turno', rascunho.turno || '');
+        if (rascunho.hora_inicio) definirValor('hora_inicio', rascunho.hora_inicio);
+        if (rascunho.hora_termino) definirValor('hora_termino', rascunho.hora_termino);
         definirValor('ocorrencias_atendidas', rascunho.ocorrencias_atendidas || '');
         definirValor('observacoes', rascunho.observacoes || '');
         definirValor('assinatura_responsavel', rascunho.assinatura_responsavel || '');
@@ -388,8 +394,7 @@
             '<td>' + escapar(r.equipe) + '</td>' +
             '<td>' + escapar(r.responsavel) + '</td>' +
             '<td>' + ordensTexto + '</td>' +
-            '<td><span class="status-badge ' + classeStatus(r.status) + '">' +
-            escapar(r.status) + '</span></td>' +
+            '<td>' + escapar(textoHorario(r)) + '</td>' +
             '<td><div class="acoes-tabela">' +
             '  <button type="button" class="btn btn-info" data-acao="ver" data-id="' + r.id + '">Ver</button>' +
             '  <button type="button" class="btn btn-warning" data-acao="editar" data-id="' + r.id + '">Editar</button>' +
@@ -399,6 +404,21 @@
             '</div></td>';
 
         return tr;
+    }
+
+    // "08:00:00" -> "08:00"
+    function horaCurta(valor) {
+        return valor ? String(valor).slice(0, 5) : '';
+    }
+
+    // "08:00 às 17:00" (ou so o que estiver preenchido)
+    function textoHorario(r) {
+        var ini = horaCurta(r.hora_inicio);
+        var fim = horaCurta(r.hora_termino);
+        if (ini && fim) return ini + ' às ' + fim;
+        if (ini) return 'Início ' + ini;
+        if (fim) return 'Término ' + fim;
+        return '';
     }
 
     function classeStatus(status) {
@@ -732,7 +752,8 @@
                 : null,
             abastecimentos_realizados: textoOuNulo(valorDe('abastecimentos_realizados')),
             observacoes: textoOuNulo(valorDe('observacoes')),
-            status: valorDe('status'),
+            hora_inicio: valorDe('hora_inicio') || null,
+            hora_termino: valorDe('hora_termino') || null,
             assinatura_responsavel: textoOuNulo(valorDe('assinatura_responsavel')),
             ordem_servico_id: ordemId || null,
         };
@@ -743,6 +764,7 @@
     // ---------------------------------------------------------------
     function validar(p) {
         if (!p.data) return 'Informe a data do relatório.';
+        if (!p.hora_inicio) return 'Informe o horário de início.';
         if (!p.turno) return 'Selecione o turno.';
         if (!p.equipe) return 'Selecione a equipe.';
         if (!p.responsavel) return 'Selecione o responsável.';
@@ -755,7 +777,6 @@
         if (p.viatura_alteracoes === 'Com alterações' && !p.alteracoes_viaturas) {
             return 'Descreva as alterações encontradas na viatura.';
         }
-        if (!p.status) return 'Selecione o status do relatório.';
         if (!p.assinatura_responsavel) return 'Informe a assinatura do responsável.';
 
         // Data futura nao faz sentido para um relatorio diario
@@ -775,6 +796,8 @@
         definirValor('ordemServicoId', r.ordem_servico_id || '');
         definirValor('data', r.data || '');
         definirValor('turno', r.turno || '');
+        definirValor('hora_inicio', (r.hora_inicio || '').slice(0, 5));
+        definirValor('hora_termino', (r.hora_termino || '').slice(0, 5));
         definirValor('equipe', r.equipe || '');
         definirValor('responsavel', r.responsavel || '');
         definirValor('bairros_patrulhados', r.bairros_patrulhados || '');
@@ -789,7 +812,6 @@
         atualizarVisibilidadeAlteracoesViaturas();
         definirValor('abastecimentos_realizados', r.abastecimentos_realizados || '');
         definirValor('observacoes', r.observacoes || '');
-        definirValor('status', r.status || '');
         definirValor('assinatura_responsavel', r.assinatura_responsavel || '');
 
         estado.itensForm = (estado.itensPorRelatorio[r.id] || []).map(function (item) {
@@ -881,7 +903,8 @@
             item('Turno', r.turno) +
             item('Equipe', r.equipe) +
             item('Responsável', r.responsavel) +
-            item('Status', r.status) +
+            item('Horário de início', horaCurta(r.hora_inicio)) +
+            item('Horário de término', horaCurta(r.hora_termino)) +
             item('Assinatura', r.assinatura_responsavel) +
             item('Autos de infração', r.autos_infracao_quantidade === null || r.autos_infracao_quantidade === undefined
                 ? '' : r.autos_infracao_quantidade) +
@@ -978,7 +1001,8 @@
                 { label: 'Turno', valor: r.turno },
                 { label: 'Equipe', valor: r.equipe },
                 { label: 'Responsável', valor: r.responsavel },
-                { label: 'Status', valor: r.status },
+                { label: 'Horário de início', valor: horaCurta(r.hora_inicio) },
+                { label: 'Horário de término', valor: horaCurta(r.hora_termino) },
                 { label: 'Autos de infração', valor: r.autos_infracao_quantidade === null || r.autos_infracao_quantidade === undefined ? '' : r.autos_infracao_quantidade },
                 { label: 'Limpeza da viatura', valor: r.viatura_limpeza },
                 { label: 'Alterações na viatura', valor: r.viatura_alteracoes },
@@ -1020,7 +1044,7 @@
         if (r.turno) linhas.push('🕐 *Turno:* ' + r.turno);
         if (r.equipe) linhas.push('👥 *Equipe:* ' + r.equipe);
         if (r.responsavel) linhas.push('👤 *Responsável:* ' + r.responsavel);
-        if (r.status) linhas.push('📌 *Status:* ' + r.status);
+        if (r.hora_inicio || r.hora_termino) linhas.push('⏰ *Horário:* ' + textoHorario(r));
         if (r.autos_infracao_quantidade !== null && r.autos_infracao_quantidade !== undefined && r.autos_infracao_quantidade !== '') {
             linhas.push('🚨 *Autos de infração:* ' + r.autos_infracao_quantidade);
         }

@@ -88,10 +88,12 @@
                                         </select>
                                     </div>
                                     <div class="form-group">
-                                        <label for="status" class="required">Status do relatório</label>
-                                        <select id="status" name="status" required>
-                                            <option value="">Selecione...</option>
-                                        </select>
+                                        <label for="hora_inicio" class="required">Horário de início</label>
+                                        <input type="time" id="hora_inicio" name="hora_inicio" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="hora_termino">Horário de término</label>
+                                        <input type="time" id="hora_termino" name="hora_termino">
                                     </div>
                                     <div class="form-group">
                                         <label for="assinatura_responsavel" class="required">Assinatura do
@@ -239,7 +241,7 @@
                                         <th>Equipe</th>
                                         <th>Responsável</th>
                                         <th>Ordens de Serviço</th>
-                                        <th>Status</th>
+                                        <th>Horário</th>
                                         <th>Ações</th>
                                     </tr>
                                 </thead>
