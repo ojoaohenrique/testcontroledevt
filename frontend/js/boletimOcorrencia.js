@@ -579,106 +579,22 @@
     }
 
     // ---------------------------------------------------------------
-    // PDF
+    // PDF e WORD - modelo oficial do Auto de Remocao de Veiculo
+    // (cabecalho/rodape da Prefeitura, tabelas azuis). A montagem fica em
+    // js/components/autoRemocaoWord.js (window.GML_AUTO_REMOCAO).
     // ---------------------------------------------------------------
-    // Layout em tabela, no mesmo padrao do modelo "Auto de Remocao de
-    // Veiculo" (DATA/HORA/LOCAL, MOTIVO DO RECOLHIMENTO, IDENTIFICACAO DO
-    // VEICULO, IDENTIFICACAO DO PROPRIETARIO, CONDICOES DO VEICULO,
-    // TRANSPORTE DO VEICULO), em vez do grid de cartoes usado nos outros
-    // modulos.
-    function linhaSecaoPdf(titulo) {
-        return '<tr><td colspan="4" style="background:#e6f0ff;color:#0056b3;' +
-            'font-weight:bold;padding:6px 8px;">' + GML_PDF.escapar(titulo) + '</td></tr>';
+    function buscarBoletim(id) {
+        return estado.registros.find(function (item) { return item.id === id; });
     }
 
-    // pares: [[label, valor], [label, valor]] (1 ou 2 por linha; com 1 par
-    // o valor ocupa o resto da linha, igual as linhas "LOCAL"/"Marca" do
-    // modelo original)
-    function linhaCamposPdf(pares) {
-        var tds = pares.map(function (par) {
-            var colspan = pares.length === 1 ? ' colspan="3"' : '';
-            return '<td style="font-weight:bold;white-space:nowrap;">' + GML_PDF.escapar(par[0]) + '</td>' +
-                '<td' + colspan + '>' + GML_PDF.escapar(par[1]) + '</td>';
-        }).join('');
-        return '<tr>' + tds + '</tr>';
-    }
-
-    function horaDe(valor) {
-        var dtl = paraDateTimeLocal(valor);
-        var partes = dtl ? dtl.split('T') : [];
-        return partes[1] || '-';
-    }
-
-    // Documento Word no modelo oficial do Auto de Remocao (modelos/auto_remocao_modelo.docx)
     function gerarWordBoletim(id) {
-        var b = estado.registros.find(function (item) { return item.id === id; });
-        if (!b || !window.GML_AUTO_REMOCAO) return;
-        window.GML_AUTO_REMOCAO.gerarWord(b);
+        var b = buscarBoletim(id);
+        if (b && window.GML_AUTO_REMOCAO) window.GML_AUTO_REMOCAO.gerarWord(b);
     }
 
     function gerarPdfBoletim(id) {
-        var b = estado.registros.find(function (item) { return item.id === id; });
-        if (!b || !window.GML_PDF) return;
-
-        var local = b.local || '';
-        if (b.local_complemento) local += ' — ' + b.local_complemento;
-
-        var tabela =
-            '<table class="pdf-tabela"><tbody>' +
-            linhaCamposPdf([['Data', formatarData(b.data_hora)], ['Hora', horaDe(b.data_hora)]]) +
-            linhaCamposPdf([['Local', local || '-']]) +
-
-            linhaSecaoPdf('MOTIVO DO RECOLHIMENTO') +
-            linhaCamposPdf([['Motivo do Recolhimento', b.motivo_recolhimento]]) +
-            linhaCamposPdf([['Infração', b.infracao || '-']]) +
-            linhaCamposPdf([['AIT Nº', b.ait_numero || '-']]) +
-            linhaCamposPdf([['Medida Administrativa', b.medida_administrativa || '-']]) +
-
-            linhaSecaoPdf('IDENTIFICAÇÃO DO VEÍCULO') +
-            linhaCamposPdf([['Placa', b.veiculo_placa], ['País', b.veiculo_pais || '-']]) +
-            linhaCamposPdf([['Espécie', b.veiculo_especie || '-'], ['Tipo', b.veiculo_tipo || '-']]) +
-            linhaCamposPdf([['Marca/Modelo', b.veiculo_marca_modelo || '-']]) +
-            linhaCamposPdf([['UF', b.veiculo_uf || '-'], ['Município', b.veiculo_municipio || '-']]) +
-            linhaCamposPdf([['Categoria', b.veiculo_categoria || '-'], ['Lugares', b.veiculo_lugares || '-']]) +
-            linhaCamposPdf([['Chassi', b.veiculo_chassi || '-']]) +
-            linhaCamposPdf([['Renavam', b.veiculo_renavam || '-']]) +
-
-            linhaSecaoPdf('IDENTIFICAÇÃO DO PROPRIETÁRIO') +
-            linhaCamposPdf([['Nome', b.proprietario_nome || '-']]) +
-            linhaCamposPdf([['CPF', b.proprietario_cpf || '-'], ['RG', b.proprietario_rg || '-']]) +
-            linhaCamposPdf([['CNH', b.proprietario_cnh || '-']]) +
-
-            linhaSecaoPdf('IDENTIFICAÇÃO DO CONDUTOR') +
-            (b.condutor_mesmo_proprietario
-                ? linhaCamposPdf([['Condutor', 'O próprio proprietário']])
-                : linhaCamposPdf([['Nome', b.condutor_nome || '-']]) +
-                linhaCamposPdf([['CPF', b.condutor_cpf || '-'], ['RG', b.condutor_rg || '-']]) +
-                linhaCamposPdf([['CNH', b.condutor_cnh || '-']])) +
-            linhaCamposPdf([['Situação do condutor', b.situacao_condutor || '-']]) +
-
-            linhaSecaoPdf('CONDIÇÕES DO VEÍCULO') +
-            linhaCamposPdf([['Avarias', b.avarias || '-'], ['Equipamento', b.equipamento || '-']]) +
-            linhaCamposPdf([['Pneus', b.pneus || '-'], ['Combustível', b.combustivel_nivel || '-']]) +
-            linhaCamposPdf([['Odômetro', b.odometro === null || b.odometro === undefined ? '-' : b.odometro],
-                ['Informações complementares', b.informacoes_complementares || '-']]) +
-            linhaCamposPdf([['Observações', b.observacoes || '-']]) +
-
-            linhaSecaoPdf('TRANSPORTE DO VEÍCULO') +
-            linhaCamposPdf([['Guinchado', b.guinchado]]) +
-            linhaCamposPdf([['Empresa', b.empresa_guincho || '-'], ['Motorista', b.motorista_guincho || '-']]) +
-
-            linhaSecaoPdf('AGENTE RESPONSÁVEL') +
-            linhaCamposPdf([['Agente Responsável', b.agente_responsavel], ['Matrícula', b.matricula_agente || '-']]) +
-            '</tbody></table>';
-
-        GML_PDF.gerar({
-            titulo: 'AUTO DE REMOÇÃO DE VEÍCULO',
-            subtitulo: 'Nº ' + (b.numero_bo || ''),
-            corpo: '<div class="pdf-secao">' + tabela + '</div>',
-            assinaturas: [
-                b.assinatura || b.agente_responsavel || 'Agente responsável',
-            ],
-        });
+        var b = buscarBoletim(id);
+        if (b && window.GML_AUTO_REMOCAO) window.GML_AUTO_REMOCAO.gerarPdf(b);
     }
 
     // ---------------------------------------------------------------
