@@ -278,6 +278,16 @@
                                 </div>
 
                                 <div class="form-group form-group-full-width">
+                                    <h3 style="margin:8px 0 0;color:var(--azul-cconet);font-size:1rem;">Fotos</h3>
+                                </div>
+                                <div class="form-group form-group-full-width">
+                                    <label for="fotosInput" class="btn btn-secondary btn-adicionar-fotos">📷 Adicionar fotos</label>
+                                    <input type="file" id="fotosInput" accept="image/*" multiple style="display:none;">
+                                    <p id="fotosInfo" class="fotos-info">Nenhuma foto adicionada.</p>
+                                    <div id="fotosPreview" class="fotos-grid"></div>
+                                </div>
+
+                                <div class="form-group form-group-full-width">
                                     <h3 style="margin:8px 0 0;color:var(--azul-cconet);font-size:1rem;">Agente Responsável</h3>
                                 </div>
                                 <div class="form-grid">
@@ -393,6 +403,7 @@
     <script src="js/components/pdf.js"></script>
     <script src="js/vendor/pizzip.min.js"></script>
     <script src="js/vendor/docxtemplater.min.js"></script>
+    <script src="js/components/boFotos.js"></script>
     <script src="js/components/autoRemocaoWord.js"></script>
 
     <!-- 4º: Lógica da página -->

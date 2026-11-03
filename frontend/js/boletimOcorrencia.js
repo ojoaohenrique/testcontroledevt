@@ -69,11 +69,14 @@
                     limparEdicao();
                     aplicarValoresPadrao();
                     atualizarCamposCondutor();
+                    if (window.GML_BO_FOTOS) GML_BO_FOTOS.limpar();
                 }, 0);
             });
         }
 
         // Condutor = proprietario: esconde os campos do condutor (sao copiados ao salvar)
+        if (window.GML_BO_FOTOS) GML_BO_FOTOS.init();
+
         var chkMesmo = document.getElementById('condutor_mesmo_proprietario');
         if (chkMesmo) chkMesmo.addEventListener('change', atualizarCamposCondutor);
 
@@ -279,6 +282,14 @@
             var supabase = getSupabase();
             var resultado;
 
+            // Envia as fotos novas antes de gravar o B.O.
+            if (window.GML_BO_FOTOS) {
+                payload.fotos = await GML_BO_FOTOS.prepararParaSalvar(function (atual, total) {
+                    btn.textContent = 'Enviando foto ' + atual + ' de ' + total + '...';
+                });
+                btn.textContent = 'Salvando...';
+            }
+
             if (estado.editandoId) {
                 resultado = await supabase
                     .from('boletins_ocorrencia')
@@ -297,6 +308,8 @@
             }
 
             if (resultado.error) throw resultado.error;
+
+            if (window.GML_BO_FOTOS) await GML_BO_FOTOS.concluirSalvamento();
 
             mostrarToast(estado.editandoId
                 ? 'Boletim ' + (resultado.data.numero_bo || '') + ' atualizado com sucesso!'
@@ -422,6 +435,7 @@
         definirValor('condutor_rg', b.condutor_rg || '');
         definirValor('condutor_cnh', b.condutor_cnh || '');
         atualizarCamposCondutor();
+        if (window.GML_BO_FOTOS) GML_BO_FOTOS.carregarNoFormulario(b.fotos);
 
         definirValor('avarias', b.avarias || '');
         definirValor('pneus', b.pneus || '');
@@ -493,6 +507,10 @@
 
             if (resultado.error) throw resultado.error;
 
+            if (window.GML_BO_FOTOS && Array.isArray(b.fotos)) {
+                await GML_BO_FOTOS.apagar(b.fotos.map(function (f) { return f.path; }));
+            }
+
             if (estado.editandoId === id) {
                 document.getElementById('boletimForm').reset();
                 limparEdicao();
@@ -553,7 +571,11 @@
             '</div>' +
             bloco('Avarias', b.avarias) +
             bloco('Informações complementares', b.informacoes_complementares) +
-            bloco('Observações', b.observacoes);
+            bloco('Observações', b.observacoes) +
+            '<h4 style="margin:12px 0 6px;color:#0056b3;">Fotos</h4>' +
+            '<div id="detalheFotos"></div>';
+
+        if (window.GML_BO_FOTOS) GML_BO_FOTOS.renderDetalhe(document.getElementById('detalheFotos'), b.fotos);
 
         var btnPdf = document.getElementById('detalhePdfBtn');
         btnPdf.onclick = function () { gerarPdfBoletim(id); };

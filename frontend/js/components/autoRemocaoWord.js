@@ -105,6 +105,89 @@
         setTimeout(function () { URL.revokeObjectURL(url); }, 2000);
     }
 
+    // ---------------------------------------------------------------
+    // Fotos no Word: substitui o paragrafo marcador FOTOS_AQUI (logo
+    // abaixo de "9. Fotos" no modelo) pelas imagens, duas por linha.
+    // ---------------------------------------------------------------
+    var EMU_POR_MM = 36000;
+
+    function dimensoesImagem(blob) {
+        return new Promise(function (ok) {
+            var url = URL.createObjectURL(blob);
+            var img = new Image();
+            img.onload = function () { URL.revokeObjectURL(url); ok({ w: img.naturalWidth, h: img.naturalHeight }); };
+            img.onerror = function () { URL.revokeObjectURL(url); ok({ w: 4, h: 3 }); };
+            img.src = url;
+        });
+    }
+
+    function xmlImagem(rid, id, cx, cy) {
+        return '<w:r><w:drawing><wp:inline distT="0" distB="0" distL="0" distR="0">' +
+            '<wp:extent cx="' + cx + '" cy="' + cy + '"/>' +
+            '<wp:docPr id="' + id + '" name="Foto ' + id + '"/>' +
+            '<a:graphic xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main">' +
+            '<a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture">' +
+            '<pic:pic xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture">' +
+            '<pic:nvPicPr><pic:cNvPr id="' + id + '" name="foto' + id + '.jpeg"/><pic:cNvPicPr/></pic:nvPicPr>' +
+            '<pic:blipFill><a:blip r:embed="' + rid + '"/><a:stretch><a:fillRect/></a:stretch></pic:blipFill>' +
+            '<pic:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="' + cx + '" cy="' + cy + '"/></a:xfrm>' +
+            '<a:prstGeom prst="rect"><a:avLst/></a:prstGeom></pic:spPr>' +
+            '</pic:pic></a:graphicData></a:graphic></wp:inline></w:drawing></w:r>';
+    }
+
+    async function inserirFotosWord(zip, fotos) {
+        var docXml = zip.file('word/document.xml').asText();
+        var regexMarcador = /<w:p\b(?:(?!<w:p\b)[\s\S])*?FOTOS_AQUI[\s\S]*?<\/w:p>/;
+        if (!regexMarcador.test(docXml)) return;
+
+        fotos = Array.isArray(fotos) ? fotos : [];
+        var urls = [];
+        if (fotos.length && window.GML_BO_FOTOS) {
+            try { urls = await window.GML_BO_FOTOS.urlsAssinadas(fotos); } catch (e) { urls = []; }
+        }
+
+        var runs = [];
+        var relsXml = zip.file('word/_rels/document.xml.rels').asText();
+        for (var i = 0; i < urls.length; i++) {
+            if (!urls[i]) continue;
+            try {
+                var resp = await fetch(urls[i]);
+                if (!resp.ok) continue;
+                var blob = await resp.blob();
+                var dim = await dimensoesImagem(blob);
+                var cx = 80 * EMU_POR_MM;
+                var cy = Math.round(cx * dim.h / dim.w);
+                var maxCy = 100 * EMU_POR_MM;
+                if (cy > maxCy) { cx = Math.round(cx * maxCy / cy); cy = maxCy; }
+
+                var n = runs.length + 1;
+                var rid = 'rIdFotoBO' + n;
+                zip.file('word/media/foto_bo_' + n + '.jpeg', await blob.arrayBuffer());
+                relsXml = relsXml.replace('</Relationships>',
+                    '<Relationship Id="' + rid + '" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" ' +
+                    'Target="media/foto_bo_' + n + '.jpeg"/></Relationships>');
+                runs.push(xmlImagem(rid, 9000 + n, cx, cy));
+            } catch (e) {
+                console.warn('Foto nao incluida no Word:', e);
+            }
+        }
+
+        var paragrafos = '';
+        if (runs.length === 0) {
+            paragrafos = '<w:p><w:r><w:t>Sem fotos.</w:t></w:r></w:p>';
+        } else {
+            for (var j = 0; j < runs.length; j += 2) {
+                paragrafos += '<w:p><w:pPr><w:jc w:val="center"/><w:spacing w:after="120"/></w:pPr>' +
+                    runs[j] +
+                    (runs[j + 1] ? '<w:r><w:t xml:space="preserve">  </w:t></w:r>' + runs[j + 1] : '') +
+                    '</w:p>';
+            }
+        }
+
+        zip.file('word/document.xml', docXml.replace(regexMarcador, paragrafos));
+        zip.file('word/_rels/document.xml.rels', relsXml);
+    }
+
     async function gerarWordBoletim(b) {
         if (!b) return;
         if (!window.PizZip || !window.docxtemplater) {
@@ -124,6 +207,7 @@
                 nullGetter: function () { return ''; },
             });
             doc.render(montarCampos(b));
+            await inserirFotosWord(doc.getZip(), b.fotos);
 
             var blob = doc.getZip().generate({
                 type: 'blob',
@@ -172,7 +256,18 @@
             '<tbody>' + linhas.join('') + '</tbody></table>';
     }
 
-    function montarHtmlPdf(b) {
+    function secaoFotos(urls) {
+        urls = (urls || []).filter(Boolean);
+        var conteudo = urls.length === 0
+            ? '<div class="sem-fotos">Sem fotos.</div>'
+            : urls.map(function (u) {
+                return '<div class="foto"><img src="' + u.replace(/"/g, '&quot;') + '" alt=""></div>';
+            }).join('');
+        return '<table class="sec sec-cab"><thead><tr><td class="tit">FOTOS</td></tr></thead></table>' +
+            '<div class="fotos">' + conteudo + '</div>';
+    }
+
+    function montarHtmlPdf(b, urlsFotos) {
         var c = montarCampos(b);
         var local = c.local + (c.local_complemento ? ' — ' + c.local_complemento : '');
 
@@ -224,6 +319,7 @@
                 linha([['Guinchado', c.guinchado]]),
                 linha([['Empresa', c.empresa_guincho], ['Motorista', c.motorista_guincho]]),
             ]) +
+            secaoFotos(urlsFotos) +
             secao('AGENTE RESPONSÁVEL', [
                 linha([['Agente Responsável', c.agente], ['Matrícula', c.matricula]]),
             ]) +
@@ -251,6 +347,12 @@
             'table.sec th, table.sec td { border: 1px solid #000; padding: 4px 6px; vertical-align: top; text-align: left; }' +
             'table.sec th { font-weight: bold; }' +
             'table.sec td.tit { background: #5b9bd5; color: #fff; font-weight: bold; text-align: center; padding: 6px; }' +
+            'table.sec-cab { margin-bottom: 0; }' +
+            '.fotos { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 3mm;' +
+            '  border: 1px solid #000; border-top: none; padding: 3mm; margin: 0 0 12px; }' +
+            '.foto { width: calc(50% - 1.5mm); text-align: center; break-inside: avoid; page-break-inside: avoid; }' +
+            '.foto img { max-width: 100%; max-height: 85mm; }' +
+            '.sem-fotos { width: 100%; }' +
             '.assinatura { width: 60%; margin: 40px auto 0; text-align: center; font-family: Arial, Helvetica, sans-serif; font-size: 10.5pt; page-break-inside: avoid; }' +
             '.assinatura .traco { border-top: 1px solid #000; margin-bottom: 4px; }' +
             '.assinatura .rotulo { font-weight: bold; }' +
@@ -272,17 +374,28 @@
             '</body></html>';
     }
 
-    function gerarPdfBoletim(b) {
+    async function gerarPdfBoletim(b) {
         if (!b) return;
 
+        // A janela precisa abrir no clique (senao o navegador bloqueia o pop-up)
         var janela = window.open('', '_blank');
         if (!janela) {
             mostrarToast('Permita pop-ups no navegador para gerar o PDF.', 'warning');
             return;
         }
+        janela.document.write('<p style="font-family:Arial;padding:20px;">Gerando o PDF...</p>');
+
+        var urlsFotos = [];
+        if (Array.isArray(b.fotos) && b.fotos.length && window.GML_BO_FOTOS) {
+            try {
+                urlsFotos = await window.GML_BO_FOTOS.urlsAssinadas(b.fotos);
+            } catch (e) {
+                console.warn('Nao foi possivel carregar as fotos para o PDF:', e);
+            }
+        }
 
         janela.document.open();
-        janela.document.write(montarHtmlPdf(b));
+        janela.document.write(montarHtmlPdf(b, urlsFotos));
         janela.document.close();
 
         // So abre a impressao depois que cabecalho e rodape carregarem
@@ -291,7 +404,7 @@
             if (img.complete) return Promise.resolve();
             return new Promise(function (ok) { img.onload = ok; img.onerror = ok; });
         });
-        var limite = new Promise(function (ok) { setTimeout(ok, 4000); });
+        var limite = new Promise(function (ok) { setTimeout(ok, 15000); });
 
         Promise.race([Promise.all(carregadas), limite]).then(function () {
             try {
