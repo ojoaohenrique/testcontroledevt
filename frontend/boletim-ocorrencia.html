@@ -8,8 +8,8 @@
     <meta name="theme-color" content="#0b1340">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="description" content="GML - Boletim de Ocorrência (B.O.) da Guarda Municipal de Laguna">
-    <title>GML - B.O.</title>
+    <meta name="description" content="GML - A.R.V.C (Auto de Remoção de Veículo) da Guarda Municipal de Laguna">
+    <title>GML - A.R.V.C</title>
 
     <script>
         window.ENV_SUPABASE_URL = "https://oyqivykvwwxvqlcxcmeq.supabase.co";
@@ -37,12 +37,12 @@
                 <main>
                     <header class="topbar">
                         <div class="topbar-left">
-                            <h1>🚨 B.O. — Auto de Remoção de Veículo</h1>
-                            <p>Registro dos boletins de remoção/recolhimento de veículos da Guarda Municipal</p>
+                            <h1>🚨 A.R.V.C — Auto de Remoção de Veículo</h1>
+                            <p>Registro dos autos de remoção/recolhimento de veículos da Guarda Municipal</p>
                         </div>
                         <div class="topbar-stats">
                             <div class="stat-card">
-                                <span class="stat-label">Boletins emitidos</span>
+                                <span class="stat-label">A.R.V.C emitidos</span>
                                 <span class="stat-value" id="contadorBoletins">0</span>
                             </div>
                         </div>
@@ -50,14 +50,14 @@
 
                     <!-- ============ FORMULÁRIO ============ -->
                     <div class="form-container" style="min-width:0;margin-bottom:24px;">
-                        <div class="header" id="formTitulo">Novo Boletim de Ocorrência</div>
+                        <div class="header" id="formTitulo">Novo A.R.V.C</div>
                         <form id="boletimForm" novalidate>
                             <input type="hidden" id="boletimId">
 
                             <div class="form-body">
                                 <div class="form-grid">
                                     <div class="form-group">
-                                        <label for="numero_bo">Número do B.O.</label>
+                                        <label for="numero_bo">Número do A.R.V.C</label>
                                         <input type="text" id="numero_bo" name="numero_bo" readonly
                                             class="readonly-input" placeholder="Gerado automaticamente ao salvar">
                                     </div>
@@ -317,7 +317,7 @@
                                 <button type="button" class="btn btn-secondary" id="btnCancelarEdicao"
                                     style="display:none;">Cancelar edição</button>
                                 <button type="reset" class="btn btn-secondary">Limpar</button>
-                                <button type="submit" class="btn btn-primary" id="btnSalvar">Salvar B.O.</button>
+                                <button type="submit" class="btn btn-primary" id="btnSalvar">Salvar A.R.V.C</button>
                             </div>
                         </form>
                     </div>
@@ -346,7 +346,7 @@
 
                     <!-- ============ TABELA ============ -->
                     <div class="registro-container">
-                        <h3>Boletins cadastrados</h3>
+                        <h3>A.R.V.C cadastrados</h3>
                         <div class="table-responsive">
                             <table id="tabelaBoletins">
                                 <thead>
@@ -379,7 +379,7 @@
     <!-- ============ MODAL DE DETALHES ============ -->
     <div class="modal-overlay" id="detalheModal">
         <div class="modal-content modal-content-lg">
-            <h3>Detalhes do Boletim de Ocorrência</h3>
+            <h3>Detalhes do A.R.V.C</h3>
             <div id="detalheConteudo"></div>
             <div class="buttons" style="padding:0;">
                 <button type="button" class="btn btn-secondary" id="detalheFecharBtn">Fechar</button>

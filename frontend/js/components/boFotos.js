@@ -139,7 +139,7 @@
         });
         var vagas = MAX_FOTOS - totalNoFormulario();
         if (arquivos.length > vagas) {
-            mostrarToast('Limite de ' + MAX_FOTOS + ' fotos por B.O. Algumas não foram adicionadas.', 'warning');
+            mostrarToast('Limite de ' + MAX_FOTOS + ' fotos por A.R.V.C. Algumas não foram adicionadas.', 'warning');
             arquivos = arquivos.slice(0, Math.max(0, vagas));
         }
         arquivos.forEach(function (file) {

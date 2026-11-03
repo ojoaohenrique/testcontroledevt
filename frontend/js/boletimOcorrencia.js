@@ -151,7 +151,7 @@
             atualizarContadores();
         } catch (err) {
             console.error('Erro ao carregar boletins de ocorrencia:', err);
-            mostrarToast('Erro ao carregar boletins: ' + err.message, 'error');
+            mostrarToast('Erro ao carregar A.R.V.C: ' + err.message, 'error');
         }
     }
 
@@ -209,7 +209,7 @@
         if (pagina.length === 0) {
             var vazio = document.createElement('tr');
             vazio.innerHTML = '<td colspan="7" style="text-align:center;padding:24px;">' +
-                'Nenhum boletim encontrado.</td>';
+                'Nenhum A.R.V.C encontrado.</td>';
             tbody.appendChild(vazio);
         } else {
             pagina.forEach(function (b) {
@@ -312,8 +312,8 @@
             if (window.GML_BO_FOTOS) await GML_BO_FOTOS.concluirSalvamento();
 
             mostrarToast(estado.editandoId
-                ? 'Boletim ' + (resultado.data.numero_bo || '') + ' atualizado com sucesso!'
-                : 'Boletim ' + (resultado.data.numero_bo || '') + ' registrado com sucesso!', 'success');
+                ? 'A.R.V.C ' + (resultado.data.numero_bo || '') + ' atualizado com sucesso!'
+                : 'A.R.V.C ' + (resultado.data.numero_bo || '') + ' registrado com sucesso!', 'success');
 
             document.getElementById('boletimForm').reset();
             limparEdicao();
@@ -323,10 +323,10 @@
             console.error('Erro ao salvar boletim de ocorrencia:', err);
             erroEl.textContent = 'Erro ao salvar: ' + err.message;
             erroEl.style.display = 'block';
-            mostrarToast('Erro ao salvar boletim: ' + err.message, 'error');
+            mostrarToast('Erro ao salvar A.R.V.C: ' + err.message, 'error');
         } finally {
             btn.disabled = false;
-            btn.textContent = estado.editandoId ? 'Atualizar B.O.' : 'Salvar B.O.';
+            btn.textContent = estado.editandoId ? 'Atualizar A.R.V.C' : 'Salvar A.R.V.C';
         }
     }
 
@@ -386,7 +386,7 @@
     // VALIDACAO (impede registros incompletos)
     // ---------------------------------------------------------------
     function validar(p) {
-        if (!p.data_hora) return 'Informe a data e hora do boletim.';
+        if (!p.data_hora) return 'Informe a data e hora do A.R.V.C.';
         if (!p.local) return 'Informe o local.';
         if (!p.motivo_recolhimento) return 'Informe o motivo do recolhimento.';
         if (!p.veiculo_placa) return 'Informe a placa do veículo.';
@@ -454,8 +454,8 @@
         definirValor('assinatura', b.assinatura || '');
 
         document.getElementById('formTitulo').textContent =
-            'Editando B.O. ' + (b.numero_bo || '');
-        document.getElementById('btnSalvar').textContent = 'Atualizar B.O.';
+            'Editando A.R.V.C ' + (b.numero_bo || '');
+        document.getElementById('btnSalvar').textContent = 'Atualizar A.R.V.C';
         document.getElementById('btnCancelarEdicao').style.display = 'inline-block';
 
         document.getElementById('boletimForm')
@@ -478,8 +478,8 @@
         estado.editandoId = null;
         definirValor('boletimId', '');
         definirValor('numero_bo', '');
-        document.getElementById('formTitulo').textContent = 'Novo Boletim de Ocorrência';
-        document.getElementById('btnSalvar').textContent = 'Salvar B.O.';
+        document.getElementById('formTitulo').textContent = 'Novo A.R.V.C';
+        document.getElementById('btnSalvar').textContent = 'Salvar A.R.V.C';
         document.getElementById('btnCancelarEdicao').style.display = 'none';
         var erroEl = document.getElementById('formErro');
         if (erroEl) erroEl.style.display = 'none';
@@ -493,7 +493,7 @@
         if (!b) return;
 
         var confirmado = confirmarExclusao(
-            'Deseja realmente excluir o B.O. ' + (b.numero_bo || '') +
+            'Deseja realmente excluir o A.R.V.C ' + (b.numero_bo || '') +
             '? Esta ação não pode ser desfeita.'
         );
         if (!confirmado) return;
@@ -517,11 +517,11 @@
                 aplicarValoresPadrao();
             }
 
-            mostrarToast('Boletim excluído com sucesso!', 'success');
+            mostrarToast('A.R.V.C excluído com sucesso!', 'success');
             await carregarBoletins();
         } catch (err) {
             console.error('Erro ao excluir boletim de ocorrencia:', err);
-            mostrarToast('Erro ao excluir boletim: ' + err.message, 'error');
+            mostrarToast('Erro ao excluir A.R.V.C: ' + err.message, 'error');
         }
     }
 
@@ -536,7 +536,7 @@
 
         conteudo.innerHTML =
             '<div class="detalhe-grid">' +
-            item('Número do B.O.', b.numero_bo) +
+            item('Número do A.R.V.C', b.numero_bo) +
             item('Data/Hora', formatarDataHora(b.data_hora)) +
             item('Local', b.local) +
             item('Complemento', b.local_complemento || '-') +

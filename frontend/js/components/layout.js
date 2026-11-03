@@ -6,7 +6,7 @@
         { href: 'viaturas.html', label: 'Viaturas', icon: '🚔' },
         { href: 'relatorio-diario.html', label: 'Relatório Diário', icon: '📋' },
         { href: 'ordens-servico.html', label: 'Ordens de Serviço', icon: '📝' },
-        { href: 'boletim-ocorrencia.html', label: 'B.O.', icon: '🚨' },
+        { href: 'boletim-ocorrencia.html', label: 'A.R.V.C', icon: '🚨' },
     ];
 
     function paginaAtual() {

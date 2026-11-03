@@ -91,7 +91,7 @@
 
     function nomeArquivo(b) {
         var numero = texto(b.numero_bo).replace(/[^0-9A-Za-z]+/g, '_') || 'sem_numero';
-        return 'AUTO_DE_REMOCAO_' + numero + '.docx';
+        return 'ARVC_' + numero + '.docx';
     }
 
     function baixar(blob, nome) {
@@ -362,7 +362,7 @@
         var numero = texto(b.numero_bo) || 'sem número';
 
         return '<!DOCTYPE html><html lang="pt-br"><head><meta charset="UTF-8">' +
-            '<title>Auto de Remoção de Veículo ' + esc(numero) + '</title>' +
+            '<title>A.R.V.C ' + esc(numero) + ' - Auto de Remoção de Veículo</title>' +
             '<style>' + estilos + '</style></head><body>' +
             '<div class="cab"><img src="' + urlAbsoluta(IMG_CABECALHO) + '" alt=""></div>' +
             '<table class="pagina">' +
