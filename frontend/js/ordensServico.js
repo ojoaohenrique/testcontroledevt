@@ -14,6 +14,7 @@
         filtrados: [],   // apos aplicar filtros
         pagina: 1,
         editandoId: null,
+        statusAtual: null, // status da ordem em edicao (o campo Status saiu do formulario)
     };
 
     // ---------------------------------------------------------------
@@ -32,16 +33,13 @@
         var dados = window.GML_DADOS || {};
 
         preencherSelect('prioridade', dados.PRIORIDADES || []);
-        preencherSelect('status', dados.STATUS_ORDEM || []);
         preencherSelect('viatura', dados.VIATURAS || []);
-        preencherSelect('motorista', dados.MOTORISTAS || []);
         preencherSelect('equipe', dados.EQUIPES || []);
         preencherSelect('tipo_servico', dados.TIPOS_SERVICO || []);
 
         // Filtros
         preencherSelect('filtroStatus', dados.STATUS_ORDEM || []);
         preencherSelect('filtroEquipe', dados.EQUIPES || []);
-        preencherSelect('filtroMotorista', dados.MOTORISTAS || []);
         preencherSelect('filtroViatura', dados.VIATURAS || []);
     }
 
@@ -49,28 +47,57 @@
         var campoNumero = document.getElementById('numero_ordem');
         if (campoNumero && !campoNumero.value) campoNumero.value = gerarNumeroOrdem();
 
-        // Data/Hora início concentra o que antes eram os campos separados
-        // "Data" e "Hora" (duplicados). Pré-preenche com o momento atual.
-        var campoInicio = document.getElementById('data_hora_inicio');
-        if (campoInicio && !campoInicio.value) {
-            var agora = new Date();
-            var tzoffset = agora.getTimezoneOffset() * 60000;
-            campoInicio.value = new Date(agora.getTime() - tzoffset).toISOString().slice(0, 16);
-        }
+        // Pré-preenche Data e Horário de início com o momento atual.
+        var agoraLocal = dataHoraLocalAgora();
+        var campoData = document.getElementById('data_ordem');
+        if (campoData && !campoData.value) campoData.value = agoraLocal.slice(0, 10);
 
-        var campoStatus = document.getElementById('status');
-        if (campoStatus && !campoStatus.value) campoStatus.value = 'Aberta';
+        var campoInicio = document.getElementById('hora_inicio');
+        if (campoInicio && !campoInicio.value) campoInicio.value = agoraLocal.slice(11, 16);
+
+        atualizarBotaoFinalizar();
+    }
+
+    // "YYYY-MM-DDTHH:MM" no horario local do aparelho
+    function dataHoraLocalAgora() {
+        var agora = new Date();
+        var tzoffset = agora.getTimezoneOffset() * 60000;
+        return new Date(agora.getTime() - tzoffset).toISOString().slice(0, 16);
+    }
+
+    // O botao Finalizar so aparece enquanto a ordem ainda nao foi concluida/cancelada
+    function atualizarBotaoFinalizar() {
+        var btn = document.getElementById('btnFinalizar');
+        if (!btn) return;
+        var encerrada = estado.statusAtual === 'Concluída' || estado.statusAtual === 'Cancelada';
+        btn.style.display = encerrada ? 'none' : 'inline-block';
     }
 
     function configurarEventos() {
         var form = document.getElementById('ordemForm');
         if (form) {
-            form.addEventListener('submit', handleSalvar);
+            form.addEventListener('submit', function (e) {
+                e.preventDefault();
+                salvarOrdem(false);
+            });
             form.addEventListener('reset', function () {
                 setTimeout(function () {
                     limparEdicao();
                     aplicarValoresPadrao();
                 }, 0);
+            });
+        }
+
+        var btnFinalizar = document.getElementById('btnFinalizar');
+        if (btnFinalizar) {
+            btnFinalizar.addEventListener('click', function () {
+                // Sem horario de termino informado, usa o horario atual
+                var campoTermino = document.getElementById('hora_termino');
+                if (campoTermino && !campoTermino.value) {
+                    campoTermino.value = dataHoraLocalAgora().slice(11, 16);
+                }
+                if (!confirmarExclusao('Finalizar esta ordem de serviço? Ela será marcada como Concluída.')) return;
+                salvarOrdem(true);
             });
         }
 
@@ -84,7 +111,7 @@
         }
 
         // Filtros
-        ['filtroBusca', 'filtroStatus', 'filtroData', 'filtroEquipe', 'filtroMotorista', 'filtroViatura']
+        ['filtroBusca', 'filtroStatus', 'filtroData', 'filtroEquipe', 'filtroViatura']
             .forEach(function (id) {
                 var el = document.getElementById(id);
                 if (!el) return;
@@ -159,20 +186,18 @@
         var status = valorDe('filtroStatus');
         var data = valorDe('filtroData');
         var equipe = valorDe('filtroEquipe');
-        var motorista = valorDe('filtroMotorista');
         var viatura = valorDe('filtroViatura');
 
         estado.filtrados = estado.registros.filter(function (o) {
             if (status && o.status !== status) return false;
             if (data && o.data !== data) return false;
             if (equipe && o.equipe !== equipe) return false;
-            if (motorista && o.motorista !== motorista) return false;
             if (viatura && o.viatura !== viatura) return false;
             if (termo) {
                 var alvo = [
                     o.numero_ordem, o.solicitante, o.setor, o.local,
                     o.tipo_servico, o.descricao, o.status,
-                    o.viatura, o.motorista, o.equipe,
+                    o.viatura, o.equipe,
                 ].join(' ').toLowerCase();
                 if (alvo.indexOf(termo) < 0) return false;
             }
@@ -183,7 +208,7 @@
     }
 
     function limparFiltros() {
-        ['filtroBusca', 'filtroStatus', 'filtroData', 'filtroEquipe', 'filtroMotorista', 'filtroViatura']
+        ['filtroBusca', 'filtroStatus', 'filtroData', 'filtroEquipe', 'filtroViatura']
             .forEach(function (id) {
                 var el = document.getElementById(id);
                 if (el) el.value = '';
@@ -297,15 +322,14 @@
     // ---------------------------------------------------------------
     // CRIAR / EDITAR
     // ---------------------------------------------------------------
-    async function handleSalvar(event) {
-        event.preventDefault();
-
-        var btn = document.getElementById('btnSalvar');
+    async function salvarOrdem(finalizar) {
+        var btn = document.getElementById(finalizar ? 'btnFinalizar' : 'btnSalvar');
+        var textoOriginal = btn.textContent;
         var erroEl = document.getElementById('formErro');
         erroEl.style.display = 'none';
 
-        var payload = montarPayload();
-        var erro = validar(payload);
+        var payload = montarPayload(finalizar);
+        var erro = validar(payload, finalizar);
 
         if (erro) {
             erroEl.textContent = erro;
@@ -315,7 +339,7 @@
         }
 
         btn.disabled = true;
-        btn.textContent = 'Salvando...';
+        btn.textContent = finalizar ? 'Finalizando...' : 'Salvando...';
 
         try {
             var supabase = getSupabase();
@@ -340,9 +364,11 @@
 
             var eraConcluida = payload.status === 'Concluída';
 
-            mostrarToast(estado.editandoId
-                ? 'Ordem de serviço atualizada com sucesso!'
-                : 'Ordem de serviço criada com sucesso!', 'success');
+            mostrarToast(finalizar
+                ? 'Ordem de serviço finalizada com sucesso!'
+                : (estado.editandoId
+                    ? 'Ordem de serviço atualizada com sucesso!'
+                    : 'Ordem de serviço criada com sucesso!'), 'success');
 
             document.getElementById('ordemForm').reset();
             limparEdicao();
@@ -364,33 +390,46 @@
             mostrarToast('Erro ao salvar ordem de serviço: ' + err.message, 'error');
         } finally {
             btn.disabled = false;
-            btn.textContent = estado.editandoId ? 'Atualizar Ordem' : 'Salvar Ordem';
+            if (finalizar) btn.textContent = textoOriginal;
+            else btn.textContent = estado.editandoId ? 'Atualizar Ordem' : 'Salvar Ordem';
         }
     }
 
-    function montarPayload() {
-        // "Data" e "Hora" nao sao mais preenchidos separadamente pelo usuario
-        // (eram duplicados de "Data/Hora inicio"): derivamos os dois a partir
-        // do valor local do datetime-local, sem passar por conversao UTC.
-        var inicioBruto = valorDe('data_hora_inicio');
-        var partesInicio = inicioBruto ? inicioBruto.split('T') : [];
+    function montarPayload(finalizar) {
+        // Formulario: Data + Horario de inicio + Horario de termino.
+        // O banco continua recebendo data, hora, data_hora_inicio e data_hora_termino.
+        // Se o termino for menor que o inicio (ex.: 22:00 -> 02:00), considera o dia seguinte.
+        var data = valorDe('data_ordem');
+        var horaInicio = valorDe('hora_inicio');
+        var horaTermino = valorDe('hora_termino');
+
+        var inicio = (data && horaInicio) ? paraTimestamp(data + 'T' + horaInicio) : null;
+        var termino = null;
+        if (data && horaTermino) {
+            var dataTermino = data;
+            if (horaInicio && horaTermino < horaInicio) dataTermino = somarUmDia(data);
+            termino = paraTimestamp(dataTermino + 'T' + horaTermino);
+        }
+
+        // O campo Status saiu do formulario: ordem nova nasce "Aberta",
+        // edicao mantem o status atual e o botao Finalizar marca "Concluída".
+        var status = finalizar ? 'Concluída' : (estado.statusAtual || 'Aberta');
 
         return {
             numero_ordem: valorDe('numero_ordem'),
-            data: partesInicio[0] || '',
-            hora: partesInicio[1] || '',
+            data: data,
+            hora: horaInicio,
             solicitante: textoOuNulo(valorDe('solicitante')),
             setor: textoOuNulo(valorDe('setor')),
             prioridade: valorDe('prioridade'),
-            status: valorDe('status'),
+            status: status,
             viatura: textoOuNulo(valorDe('viatura')),
-            motorista: textoOuNulo(valorDe('motorista')),
             equipe: textoOuNulo(valorDe('equipe')),
             tipo_servico: valorDe('tipo_servico'),
             descricao: textoOuNulo(valorDe('descricao')),
             local: textoOuNulo(valorDe('local')),
-            data_hora_inicio: paraTimestamp(inicioBruto),
-            data_hora_termino: paraTimestamp(valorDe('data_hora_termino')),
+            data_hora_inicio: inicio,
+            data_hora_termino: termino,
             resultado: textoOuNulo(valorDe('resultado')),
             observacoes: textoOuNulo(valorDe('observacoes')),
             assinatura: textoOuNulo(valorDe('assinatura')),
@@ -400,20 +439,17 @@
     // ---------------------------------------------------------------
     // VALIDACAO (impede registros incompletos)
     // ---------------------------------------------------------------
-    function validar(p) {
+    function validar(p, finalizar) {
         if (!p.numero_ordem) return 'Informe o número da ordem.';
-        if (!p.data_hora_inicio) return 'Informe a data e hora de início da ordem.';
+        if (!p.data) return 'Informe a data da ordem.';
+        if (!p.data_hora_inicio) return 'Informe o horário de início.';
         if (!p.solicitante) return 'Informe o solicitante.';
         if (!p.setor) return 'Informe o setor.';
         if (!p.prioridade) return 'Selecione a prioridade.';
-        if (!p.status) return 'Selecione o status.';
         if (!p.tipo_servico) return 'Selecione o tipo de serviço.';
         if (!p.descricao) return 'Informe a descrição do serviço.';
 
-        if (p.data_hora_inicio && p.data_hora_termino &&
-            p.data_hora_termino < p.data_hora_inicio) {
-            return 'A hora de término previsto deve ser posterior ao início.';
-        }
+        if (finalizar && !p.data_hora_termino) return 'Informe o horário de término para finalizar.';
         return null;
     }
 
@@ -422,20 +458,23 @@
         if (!o) return;
 
         estado.editandoId = id;
+        estado.statusAtual = o.status || 'Aberta';
 
         definirValor('ordemId', o.id);
         definirValor('numero_ordem', o.numero_ordem || '');
         definirValor('solicitante', o.solicitante || '');
         definirValor('setor', o.setor || '');
         definirValor('prioridade', o.prioridade || '');
-        definirValor('status', o.status || '');
         definirValor('viatura', o.viatura || '');
-        definirValor('motorista', o.motorista || '');
         definirValor('equipe', o.equipe || '');
         definirValor('tipo_servico', o.tipo_servico || '');
         definirValor('local', o.local || '');
-        definirValor('data_hora_inicio', paraDateTimeLocal(o.data_hora_inicio));
-        definirValor('data_hora_termino', paraDateTimeLocal(o.data_hora_termino));
+        var inicioLocal = paraDateTimeLocal(o.data_hora_inicio);
+        var terminoLocal = paraDateTimeLocal(o.data_hora_termino);
+        definirValor('data_ordem', o.data || inicioLocal.slice(0, 10));
+        definirValor('hora_inicio', inicioLocal ? inicioLocal.slice(11, 16) : (o.hora || '').slice(0, 5));
+        definirValor('hora_termino', terminoLocal ? terminoLocal.slice(11, 16) : '');
+        definirValor('descricao', o.descricao || '');
         definirValor('resultado', o.resultado || '');
         definirValor('observacoes', o.observacoes || '');
         definirValor('assinatura', o.assinatura || '');
@@ -444,6 +483,7 @@
             'Editando ' + (o.numero_ordem || 'Ordem de Serviço');
         document.getElementById('btnSalvar').textContent = 'Atualizar Ordem';
         document.getElementById('btnCancelarEdicao').style.display = 'inline-block';
+        atualizarBotaoFinalizar();
 
         document.getElementById('ordemForm')
             .scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -451,6 +491,7 @@
 
     function limparEdicao() {
         estado.editandoId = null;
+        estado.statusAtual = null;
         definirValor('ordemId', '');
         document.getElementById('formTitulo').textContent = 'Nova Ordem de Serviço';
         document.getElementById('btnSalvar').textContent = 'Salvar Ordem';
@@ -512,12 +553,11 @@
             item('Solicitante', o.solicitante) +
             item('Setor', o.setor) +
             item('Viatura', o.viatura || '-') +
-            item('Motorista', o.motorista || '-') +
             item('Equipe', o.equipe || '-') +
             item('Tipo de serviço', o.tipo_servico) +
             item('Local', o.local || '-') +
-            item('Data/Hora início', formatarDataHora(o.data_hora_inicio)) +
-            item('Hora de término previsto', formatarDataHora(o.data_hora_termino)) +
+            item('Horário de início', formatarDataHora(o.data_hora_inicio)) +
+            item('Horário de término', formatarDataHora(o.data_hora_termino)) +
             item('Assinatura', o.assinatura || '-') +
             '</div>' +
             bloco('Descrição', o.descricao) +
@@ -571,10 +611,9 @@
             '<div class="pdf-secao"><h2>Recursos empregados</h2>' +
             GML_PDF.blocoGrid([
                 { label: 'Viatura', valor: o.viatura || '-' },
-                { label: 'Motorista', valor: o.motorista || '-' },
                 { label: 'Equipe', valor: o.equipe || '-' },
-                { label: 'Data/Hora início', valor: formatarDataHora(o.data_hora_inicio) },
-                { label: 'Hora de término previsto', valor: formatarDataHora(o.data_hora_termino) },
+                { label: 'Horário de início', valor: formatarDataHora(o.data_hora_inicio) },
+                { label: 'Horário de término', valor: formatarDataHora(o.data_hora_termino) },
                 { label: 'Assinatura', valor: o.assinatura || '-' },
             ]) + '</div>' +
             GML_PDF.blocoTexto('Descrição', o.descricao) +
@@ -634,6 +673,14 @@
     function definirValor(id, valor) {
         var el = document.getElementById(id);
         if (el) el.value = valor === null || valor === undefined ? '' : valor;
+    }
+
+    // "YYYY-MM-DD" + 1 dia
+    function somarUmDia(dataISO) {
+        var d = new Date(dataISO + 'T12:00:00');
+        d.setDate(d.getDate() + 1);
+        return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' +
+            String(d.getDate()).padStart(2, '0');
     }
 
     function textoOuNulo(valor) {

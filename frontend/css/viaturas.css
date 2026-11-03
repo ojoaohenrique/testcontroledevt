@@ -106,6 +106,8 @@ label.required::after {
 input[type="text"],
 input[type="number"],
 input[type="date"],
+input[type="time"],
+input[type="datetime-local"],
 input[type="file"],
 textarea,
 select {
