@@ -68,9 +68,14 @@
                 setTimeout(function () {
                     limparEdicao();
                     aplicarValoresPadrao();
+                    atualizarCamposCondutor();
                 }, 0);
             });
         }
+
+        // Condutor = proprietario: esconde os campos do condutor (sao copiados ao salvar)
+        var chkMesmo = document.getElementById('condutor_mesmo_proprietario');
+        if (chkMesmo) chkMesmo.addEventListener('change', atualizarCamposCondutor);
 
         var btnCancelar = document.getElementById('btnCancelarEdicao');
         if (btnCancelar) {
@@ -163,7 +168,7 @@
             if (termo) {
                 var alvo = [
                     b.numero_bo, b.local, b.local_complemento, b.veiculo_placa,
-                    b.proprietario_nome, b.agente_responsavel, b.motivo_recolhimento,
+                    b.proprietario_nome, b.condutor_nome, b.agente_responsavel, b.motivo_recolhimento,
                 ].join(' ').toLowerCase();
                 if (alvo.indexOf(termo) < 0) return false;
             }
@@ -338,6 +343,11 @@
             proprietario_rg: textoOuNulo(valorDe('proprietario_rg')),
             proprietario_cnh: textoOuNulo(valorDe('proprietario_cnh')),
             situacao_condutor: textoOuNulo(valorDe('situacao_condutor')),
+            condutor_mesmo_proprietario: condutorMesmo(),
+            condutor_nome: condutorMesmo() ? textoOuNulo(valorDe('proprietario_nome')) : textoOuNulo(valorDe('condutor_nome')),
+            condutor_cpf: condutorMesmo() ? textoOuNulo(valorDe('proprietario_cpf')) : textoOuNulo(valorDe('condutor_cpf')),
+            condutor_rg: condutorMesmo() ? textoOuNulo(valorDe('proprietario_rg')) : textoOuNulo(valorDe('condutor_rg')),
+            condutor_cnh: condutorMesmo() ? textoOuNulo(valorDe('proprietario_cnh')) : textoOuNulo(valorDe('condutor_cnh')),
 
             avarias: textoOuNulo(valorDe('avarias')),
             pneus: textoOuNulo(valorDe('pneus')),
@@ -404,6 +414,12 @@
         definirValor('proprietario_rg', b.proprietario_rg || '');
         definirValor('proprietario_cnh', b.proprietario_cnh || '');
         definirValor('situacao_condutor', b.situacao_condutor || '');
+        document.getElementById('condutor_mesmo_proprietario').checked = !!b.condutor_mesmo_proprietario;
+        definirValor('condutor_nome', b.condutor_nome || '');
+        definirValor('condutor_cpf', b.condutor_cpf || '');
+        definirValor('condutor_rg', b.condutor_rg || '');
+        definirValor('condutor_cnh', b.condutor_cnh || '');
+        atualizarCamposCondutor();
 
         definirValor('avarias', b.avarias || '');
         definirValor('pneus', b.pneus || '');
@@ -428,6 +444,18 @@
 
         document.getElementById('boletimForm')
             .scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function condutorMesmo() {
+        var chk = document.getElementById('condutor_mesmo_proprietario');
+        return !!(chk && chk.checked);
+    }
+
+    function atualizarCamposCondutor() {
+        var esconder = condutorMesmo();
+        document.querySelectorAll('.campo-condutor').forEach(function (el) {
+            el.style.display = esconder ? 'none' : '';
+        });
     }
 
     function limparEdicao() {
@@ -503,6 +531,13 @@
             item('Renavam', b.veiculo_renavam || '-') +
             item('Proprietário', b.proprietario_nome || '-') +
             item('CPF/RG', (b.proprietario_cpf || '-') + ' / ' + (b.proprietario_rg || '-')) +
+            item('Condutor', b.condutor_mesmo_proprietario
+                ? 'O próprio proprietário'
+                : (b.condutor_nome || '-')) +
+            item('CPF/RG do condutor', b.condutor_mesmo_proprietario
+                ? '-'
+                : (b.condutor_cpf || '-') + ' / ' + (b.condutor_rg || '-')) +
+            item('CNH do condutor', b.condutor_mesmo_proprietario ? '-' : (b.condutor_cnh || '-')) +
             item('Situação do condutor', b.situacao_condutor || '-') +
             item('Pneus', b.pneus || '-') +
             item('Combustível', b.combustivel_nivel || '-') +
@@ -600,6 +635,13 @@
             linhaCamposPdf([['Nome', b.proprietario_nome || '-']]) +
             linhaCamposPdf([['CPF', b.proprietario_cpf || '-'], ['RG', b.proprietario_rg || '-']]) +
             linhaCamposPdf([['CNH', b.proprietario_cnh || '-']]) +
+
+            linhaSecaoPdf('IDENTIFICAÇÃO DO CONDUTOR') +
+            (b.condutor_mesmo_proprietario
+                ? linhaCamposPdf([['Condutor', 'O próprio proprietário']])
+                : linhaCamposPdf([['Nome', b.condutor_nome || '-']]) +
+                linhaCamposPdf([['CPF', b.condutor_cpf || '-'], ['RG', b.condutor_rg || '-']]) +
+                linhaCamposPdf([['CNH', b.condutor_cnh || '-']])) +
             linhaCamposPdf([['Situação do condutor', b.situacao_condutor || '-']]) +
 
             linhaSecaoPdf('CONDIÇÕES DO VEÍCULO') +
