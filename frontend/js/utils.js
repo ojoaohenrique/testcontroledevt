@@ -11,12 +11,13 @@
                 'position:fixed', 'bottom:24px', 'right:24px', 'padding:12px 20px',
                 'border-radius:8px', 'color:#fff', 'font-size:14px', 'font-weight:500',
                 'z-index:9999', 'opacity:0', 'transition:opacity 0.3s ease',
-                'max-width:320px', 'box-shadow:0 4px 12px rgba(0,0,0,0.15)',
+                'max-width:360px', 'box-shadow:0 4px 12px rgba(0,0,0,0.15)',
             ].join(';');
             document.body.appendChild(toast);
         }
         toast.textContent = mensagem;
-        toast.style.backgroundColor = tipo === 'success' ? '#28a745' : tipo === 'warning' ? '#ffc107' : '#dc3545';
+        toast.style.backgroundColor = tipo === 'success' ? '#16a34a' : tipo === 'warning' ? '#f59e0b'
+            : tipo === 'info' ? '#1d4ea3' : '#dc2626';
         toast.style.color = tipo === 'warning' ? '#333' : '#fff';
         toast.style.opacity = '1';
         clearTimeout(toast._timeout);

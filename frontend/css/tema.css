@@ -567,11 +567,223 @@ tbody td:first-child {
     border-radius: var(--gm-raio-sm);
 }
 
-/* Fotos do B.O. */
-.foto-card {
+/* Fotos do A.R.V.C */
+.fotos-campo {
+    border: 2px dashed var(--gm-borda-forte);
+    border-radius: var(--gm-raio);
+    background: #f8fafd;
+    padding: 16px;
+    transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.fotos-campo.fotos-arrastando {
+    border-color: var(--gm-azul);
+    background: #eef3fc;
+}
+
+.fotos-cabecalho {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 14px;
+}
+
+.fotos-acoes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.fotos-botao {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0;
+    padding: 9px 16px;
     border-radius: var(--gm-raio-sm);
-    border-color: var(--gm-borda);
+    background: var(--gm-azul);
+    color: #fff;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.15s ease;
+}
+
+.fotos-botao:hover {
+    background: var(--gm-azul-hover);
+}
+
+.fotos-botao + .fotos-botao {
+    background: #fff;
+    color: var(--gm-texto);
+    border: 1px solid var(--gm-borda-forte);
+}
+
+.fotos-botao + .fotos-botao:hover {
+    background: #f1f5f9;
+}
+
+.fotos-campo.fotos-cheio .fotos-botao {
+    opacity: 0.45;
+    pointer-events: none;
+}
+
+.fotos-dica {
+    margin: 0;
+    color: var(--gm-texto-suave);
+    font-size: 0.8rem;
+}
+
+.fotos-info {
+    margin: 10px 0 0;
+    color: var(--gm-texto-suave);
+    font-size: 0.82rem;
+}
+
+.fotos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 12px;
+    margin-top: 10px;
+}
+
+.fotos-grid:empty {
+    display: none;
+}
+
+.foto-card {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    background: #fff;
+    border: 1px solid var(--gm-borda);
+    border-radius: var(--gm-raio-sm);
+    padding: 6px;
     box-shadow: var(--gm-sombra);
+}
+
+.foto-img {
+    position: relative;
+    display: block;
+    aspect-ratio: 4 / 3;
+    border-radius: 6px;
+    overflow: hidden;
+    background: #e9eef5;
+}
+
+.foto-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.foto-sem {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: var(--gm-texto-suave);
+    font-size: 0.8rem;
+}
+
+.foto-processando .foto-img {
+    animation: foto-pulsar 1.2s ease-in-out infinite;
+}
+
+@keyframes foto-pulsar {
+    50% { opacity: 0.55; }
+}
+
+.foto-numero {
+    position: absolute;
+    left: 6px;
+    top: 6px;
+    min-width: 22px;
+    height: 22px;
+    padding: 0 6px;
+    border-radius: 999px;
+    background: rgba(11, 19, 64, 0.85);
+    color: #fff;
+    font-size: 0.75rem;
+    font-weight: 700;
+    line-height: 22px;
+    text-align: center;
+}
+
+.foto-nova {
+    position: absolute;
+    left: 6px;
+    bottom: 6px;
+    padding: 1px 7px;
+    border-radius: 999px;
+    background: var(--gm-dourado);
+    color: #1f2937;
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.foto-remover {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 30px;
+    height: 30px;
+    border: none;
+    border-radius: 50%;
+    background: rgba(220, 38, 38, 0.92);
+    color: #fff;
+    font-size: 0.85rem;
+    font-weight: 700;
+    line-height: 30px;
+    padding: 0;
+    cursor: pointer;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+}
+
+.foto-remover:hover {
+    background: #b91c1c;
+}
+
+input.foto-legenda {
+    min-height: 34px;
+    padding: 6px 9px;
+    font-size: 0.82rem;
+}
+
+.foto-legenda-texto {
+    margin: 0;
+    padding: 0 2px 2px;
+    font-size: 0.8rem;
+    color: var(--gm-texto);
+}
+
+/* No computador o botao da camera abre so o seletor de arquivos: esconde */
+@media (hover: hover) and (pointer: fine) {
+    .fotos-botao-camera {
+        display: none;
+    }
+
+    .fotos-botao + .fotos-botao {
+        background: var(--gm-azul);
+        color: #fff;
+        border: none;
+    }
+}
+
+@media (max-width: 600px) {
+    .fotos-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+    }
+
+    .fotos-acoes,
+    .fotos-botao {
+        flex: 1 1 auto;
+        justify-content: center;
+    }
 }
 
 /* ------------------------------------------------------------ rodape */

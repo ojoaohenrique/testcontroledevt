@@ -282,8 +282,11 @@
             var supabase = getSupabase();
             var resultado;
 
-            // Envia as fotos novas antes de gravar o B.O.
+            // Envia as fotos novas antes de gravar o A.R.V.C
             if (window.GML_BO_FOTOS) {
+                if (GML_BO_FOTOS.emProcessamento()) {
+                    throw new Error('Aguarde as fotos terminarem de ser preparadas.');
+                }
                 payload.fotos = await GML_BO_FOTOS.prepararParaSalvar(function (atual, total) {
                     btn.textContent = 'Enviando foto ' + atual + ' de ' + total + '...';
                 });
@@ -321,9 +324,10 @@
             await carregarBoletins();
         } catch (err) {
             console.error('Erro ao salvar boletim de ocorrencia:', err);
-            erroEl.textContent = 'Erro ao salvar: ' + err.message;
+            var motivo = window.GML_BO_FOTOS ? GML_BO_FOTOS.explicarErro(err) : err.message;
+            erroEl.textContent = 'Erro ao salvar: ' + motivo;
             erroEl.style.display = 'block';
-            mostrarToast('Erro ao salvar A.R.V.C: ' + err.message, 'error');
+            mostrarToast('Erro ao salvar A.R.V.C: ' + motivo, 'error');
         } finally {
             btn.disabled = false;
             btn.textContent = estado.editandoId ? 'Atualizar A.R.V.C' : 'Salvar A.R.V.C';

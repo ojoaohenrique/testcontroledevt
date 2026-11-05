@@ -283,10 +283,19 @@
                                     <h3 style="margin:8px 0 0;color:var(--azul-cconet);font-size:1rem;">Fotos</h3>
                                 </div>
                                 <div class="form-group form-group-full-width">
-                                    <label for="fotosInput" class="btn btn-secondary btn-adicionar-fotos">📷 Adicionar fotos</label>
-                                    <input type="file" id="fotosInput" accept="image/*" multiple style="display:none;">
-                                    <p id="fotosInfo" class="fotos-info">Nenhuma foto adicionada.</p>
-                                    <div id="fotosPreview" class="fotos-grid"></div>
+                                    <div class="fotos-campo">
+                                        <div class="fotos-cabecalho">
+                                            <div class="fotos-acoes">
+                                                <label for="fotosCamera" class="fotos-botao fotos-botao-camera">📷 Tirar foto</label>
+                                                <label for="fotosInput" class="fotos-botao">🖼️ Escolher fotos</label>
+                                            </div>
+                                            <p class="fotos-dica">ou arraste as fotos para cá · JPG ou PNG · até 10 fotos</p>
+                                        </div>
+                                        <input type="file" id="fotosCamera" accept="image/*" capture="environment" hidden>
+                                        <input type="file" id="fotosInput" accept="image/*" multiple hidden>
+                                        <p id="fotosInfo" class="fotos-info">Nenhuma foto adicionada.</p>
+                                        <div id="fotosPreview" class="fotos-grid"></div>
+                                    </div>
                                 </div>
 
                                 <div class="form-group form-group-full-width">
@@ -383,8 +392,8 @@
             <div id="detalheConteudo"></div>
             <div class="buttons" style="padding:0;">
                 <button type="button" class="btn btn-secondary" id="detalheFecharBtn">Fechar</button>
-                <button type="button" class="btn btn-info" id="detalhePdfBtn">📄 Gerar PDF</button>
-                <button type="button" class="btn btn-primary" id="detalheWordBtn">📝 Gerar Word</button>
+                <button type="button" class="btn btn-info" id="detalhePdfBtn">📄 Baixar PDF</button>
+                <button type="button" class="btn btn-primary" id="detalheWordBtn">📝 Baixar Word</button>
             </div>
         </div>
     </div>
@@ -403,6 +412,8 @@
     <script src="js/dadosComuns.js"></script>
     <script src="js/components/layout.js"></script>
     <script src="js/components/pdf.js"></script>
+    <script src="js/vendor/jspdf.umd.min.js"></script>
+    <script src="js/vendor/jspdf.plugin.autotable.min.js"></script>
     <script src="js/vendor/pizzip.min.js"></script>
     <script src="js/vendor/docxtemplater.min.js"></script>
     <script src="js/components/boFotos.js"></script>
