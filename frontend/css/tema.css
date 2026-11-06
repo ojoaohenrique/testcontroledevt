@@ -911,3 +911,618 @@ body:has(.login-container) {
     color: var(--gm-marinho);
     margin: 0 0 12px;
 }
+
+/* =================================================================
+   LAYOUT v2 - estrutura de aplicativo (paginas internas)
+   body.gml-app e adicionado por js/components/layout.js
+   ================================================================= */
+
+:root {
+    --gm-sidebar: 252px;
+    --gm-pad: 28px;
+}
+
+body.gml-app {
+    padding: 0;
+    background:
+        radial-gradient(1200px 400px at 100% -10%, rgba(29, 78, 163, 0.07), transparent 60%),
+        var(--gm-fundo);
+    min-height: 100vh;
+}
+
+.gml-app .container {
+    max-width: none;
+    margin: 0;
+}
+
+.gml-app .app-layout {
+    display: block;
+    min-height: 100vh;
+}
+
+/* ---------- menu lateral fixo, altura total */
+.gml-app .sidebar {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: var(--gm-sidebar);
+    height: 100vh;
+    height: 100dvh;
+    max-height: none;
+    margin: 0;
+    border-radius: 0;
+    box-shadow: 4px 0 24px rgba(11, 19, 64, 0.12);
+    overflow-y: auto;
+    z-index: 1000;
+    transition: transform 0.25s ease;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+
+.gml-app .sidebar-inner {
+    min-height: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: 26px 0 18px;
+}
+
+.gml-app .sidebar-nav {
+    flex: 1;
+}
+
+.gml-app .sidebar-link {
+    padding: 11px 14px;
+    font-size: 0.93rem;
+}
+
+.gml-app .sidebar-link.active {
+    background: linear-gradient(90deg, rgba(224, 169, 27, 0.18), rgba(255, 255, 255, 0.08));
+}
+
+/* ---------- area principal */
+.gml-app .app-main {
+    margin-left: var(--gm-sidebar);
+    padding: 0 var(--gm-pad) 24px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.gml-app .app-main > main {
+    flex: 1;
+    width: 100%;
+    max-width: 1440px;
+    margin: 0 auto;
+    animation: gm-entrar 0.3s ease both;
+}
+
+@keyframes gm-entrar {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .gml-app .app-main > main { animation: none; }
+    .gml-app .sidebar { transition: none; }
+}
+
+/* ---------- barra superior fixa */
+.gml-app #headerUsuario {
+    position: sticky;
+    top: 0;
+    z-index: 900;
+    margin: 0 calc(-1 * var(--gm-pad)) 24px;
+}
+
+.gml-app .header-usuario {
+    border: none;
+    border-bottom: 1px solid var(--gm-borda);
+    border-radius: 0;
+    box-shadow: none;
+    padding: 12px var(--gm-pad);
+    background: rgba(255, 255, 255, 0.86);
+    backdrop-filter: saturate(160%) blur(10px);
+    -webkit-backdrop-filter: saturate(160%) blur(10px);
+}
+
+.gml-app .header-usuario-info {
+    justify-content: flex-end;
+    order: 2;
+}
+
+.gml-app .header-usuario-nav {
+    order: 3;
+}
+
+.header-marca {
+    display: none;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    color: var(--gm-marinho);
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    order: 1;
+}
+
+.header-marca img {
+    width: 30px;
+    height: auto;
+}
+
+.gml-app .sidebar-toggle {
+    order: 0;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    font-size: 1.25rem;
+}
+
+/* ---------- rodape */
+.gml-app .app-main > footer {
+    border-top: none;
+    width: 100%;
+    max-width: 1440px;
+    margin: 24px auto 0;
+}
+
+.gml-app .footer {
+    padding-top: 16px;
+    font-size: 0.75rem;
+    text-align: center;
+}
+
+/* ---------- titulo da pagina */
+.gml-app .topbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 14px 24px;
+}
+
+.gml-app .topbar-left h1 {
+    margin: 0 0 4px;
+    font-size: 1.7rem;
+    line-height: 1.2;
+}
+
+.gml-app .topbar-left p {
+    margin: 0;
+    font-size: 0.92rem;
+}
+
+.gml-app .topbar-stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+/* ---------- cartoes de indicadores (cada um com sua cor) */
+.gml-app .dashboard-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 14px;
+    margin-bottom: 24px;
+}
+
+.gml-app .stat-card {
+    --cor: var(--gm-azul);
+    min-width: 150px;
+    padding: 14px 16px 14px 20px;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.gml-app .stat-card::before {
+    width: 5px;
+    background: var(--cor);
+}
+
+.gml-app .stat-card::after {
+    content: "";
+    position: absolute;
+    right: -24px;
+    top: -24px;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: var(--cor);
+    opacity: 0.07;
+}
+
+.gml-app .dashboard-cards .stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.1);
+}
+
+.gml-app .dashboard-cards .stat-card:nth-child(8n+1) { --cor: #1d4ea3; }
+.gml-app .dashboard-cards .stat-card:nth-child(8n+2) { --cor: #16a34a; }
+.gml-app .dashboard-cards .stat-card:nth-child(8n+3) { --cor: #ea580c; }
+.gml-app .dashboard-cards .stat-card:nth-child(8n+4) { --cor: #7c3aed; }
+.gml-app .dashboard-cards .stat-card:nth-child(8n+5) { --cor: #0891b2; }
+.gml-app .dashboard-cards .stat-card:nth-child(8n+6) { --cor: #ca8a04; }
+.gml-app .dashboard-cards .stat-card:nth-child(8n+7) { --cor: #dc2626; }
+.gml-app .dashboard-cards .stat-card:nth-child(8n+8) { --cor: #0b1340; }
+
+.gml-app .stat-label {
+    display: block;
+    margin-bottom: 6px;
+    line-height: 1.3;
+}
+
+.gml-app .stat-value {
+    font-size: 1.75rem;
+    line-height: 1.1;
+    color: var(--gm-marinho);
+    font-variant-numeric: tabular-nums;
+}
+
+/* ---------- graficos */
+.gml-app .charts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr));
+    gap: 16px;
+}
+
+.gml-app .dashboard-chart {
+    padding: 18px;
+    min-width: 0;
+}
+
+/* ---------- formularios */
+.gml-app .form-container {
+    overflow: visible;
+    margin-bottom: 24px;
+}
+
+.gml-app .form-container > .header {
+    border-radius: var(--gm-raio) var(--gm-raio) 0 0;
+}
+
+.gml-app .form-container .buttons {
+    border-radius: 0 0 var(--gm-raio) var(--gm-raio);
+}
+
+.gml-app .form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+@media (max-width: 640px) {
+    .gml-app .form-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ---------- filtros */
+.gml-app .filtros-wrapper {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 170px), 1fr));
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.gml-app .filtros-wrapper .form-group {
+    min-width: 0;
+    margin: 0;
+}
+
+.gml-app .filtros-wrapper .btn {
+    align-self: end;
+    min-height: 40px;
+}
+
+/* ---------- listas */
+.gml-app .registro-container {
+    margin-bottom: 24px;
+}
+
+.gml-app .table-responsive {
+    border-radius: var(--gm-raio-sm);
+}
+
+.gml-app .paginacao {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 14px;
+}
+
+/* =================================================================
+   TABLET E CELULAR
+   ================================================================= */
+@media (max-width: 1100px) {
+    :root {
+        --gm-pad: 20px;
+    }
+}
+
+@media (max-width: 900px) {
+    :root {
+        --gm-pad: 14px;
+    }
+
+    /* menu vira gaveta deslizante */
+    .gml-app .sidebar {
+        width: min(82vw, 290px);
+        transform: translateX(-105%);
+        box-shadow: none;
+    }
+
+    body.gml-app.sidebar-open .sidebar {
+        display: block;
+        transform: none;
+        box-shadow: 8px 0 40px rgba(11, 19, 64, 0.35);
+    }
+
+    body.gml-app.sidebar-open {
+        overflow: hidden;
+    }
+
+    body.gml-app::after {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background: rgba(11, 19, 64, 0.45);
+        z-index: 999;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.25s ease;
+    }
+
+    body.gml-app.sidebar-open::after {
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    .gml-app .app-main {
+        margin-left: 0;
+    }
+
+    .gml-app .sidebar-toggle {
+        display: inline-flex;
+    }
+
+    .header-marca {
+        display: inline-flex;
+    }
+
+    .gml-app .header-usuario {
+        gap: 10px;
+    }
+
+    .gml-app .header-usuario-info {
+        flex: 1;
+    }
+
+    .gml-app #headerUsuario {
+        margin-bottom: 16px;
+    }
+}
+
+@media (max-width: 1024px) {
+    /* ---- tabelas viram cartoes (tablet e celular) */
+    .gml-app .registro-container {
+        padding: 14px;
+    }
+
+    .gml-app .table-responsive {
+        overflow: visible;
+    }
+
+    .gml-app .registro-container table,
+    .gml-app .registro-container tbody,
+    .gml-app .registro-container tr,
+    .gml-app .registro-container td {
+        display: block;
+        width: 100%;
+    }
+
+    .gml-app .registro-container thead {
+        display: none;
+    }
+
+    .gml-app .registro-container tbody tr {
+        background: #fff;
+        border: 1px solid var(--gm-borda);
+        border-left: 4px solid var(--gm-azul);
+        border-radius: var(--gm-raio-sm);
+        box-shadow: var(--gm-sombra);
+        padding: 4px 12px;
+        margin-bottom: 10px;
+    }
+
+    .gml-app .registro-container tbody tr:hover {
+        background: #fff;
+    }
+
+    .gml-app .registro-container tbody td {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 8px 0;
+        border: none;
+        border-bottom: 1px dashed #e4e9f1;
+        text-align: right;
+        white-space: normal;
+        word-break: break-word;
+    }
+
+    .gml-app .registro-container tbody td::before {
+        content: attr(data-label);
+        flex: 0 0 auto;
+        max-width: 45%;
+        text-align: left;
+        color: var(--gm-texto-suave);
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+    }
+
+    .gml-app .registro-container tbody td:first-child {
+        font-weight: 700;
+        color: var(--gm-marinho);
+    }
+
+    .gml-app .registro-container tbody td:last-child {
+        border-bottom: none;
+        padding: 10px 0 8px;
+    }
+
+    .gml-app .registro-container tbody td.td-cheia {
+        justify-content: center;
+        text-align: center;
+        border-bottom: none;
+    }
+
+    .gml-app .registro-container tbody td.td-cheia::before,
+    .gml-app .registro-container tbody td:not([data-label])::before {
+        display: none;
+    }
+
+    .gml-app .registro-container tbody td .acoes-tabela {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        width: 100%;
+    }
+
+    .gml-app .registro-container tbody td .acoes-tabela .btn {
+        flex: 1 1 calc(33% - 6px);
+        padding: 8px 6px;
+        font-size: 0.8rem;
+    }
+
+    .gml-app .registro-container tbody td:has(.acoes-tabela)::before {
+        display: none;
+    }
+
+
+    /* tablet: cartoes em duas colunas */
+    @media (min-width: 640px) {
+        .gml-app .registro-container tbody {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 12px;
+        }
+
+        .gml-app .registro-container tbody tr {
+            margin-bottom: 0;
+        }
+
+        .gml-app .registro-container tbody tr:has(td.td-cheia) {
+            grid-column: 1 / -1;
+        }
+    }
+}
+
+@media (max-width: 768px) {
+    /* evita o zoom automatico do iPhone ao tocar nos campos */
+    .gml-app input,
+    .gml-app select,
+    .gml-app textarea {
+        font-size: 16px;
+    }
+
+    .gml-app .topbar {
+        align-items: stretch;
+    }
+
+    .gml-app .topbar-left h1 {
+        font-size: 1.35rem;
+    }
+
+    .gml-app .topbar-stats {
+        width: 100%;
+    }
+
+    .gml-app .topbar-stats .stat-card {
+        flex: 1 1 140px;
+    }
+
+    .gml-app .dashboard-cards {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+    }
+
+    .gml-app .stat-card {
+        min-width: 0;
+        padding: 12px 12px 12px 16px;
+    }
+
+    .gml-app .stat-value {
+        font-size: 1.45rem;
+    }
+
+    .gml-app .stat-label {
+        font-size: 0.66rem;
+    }
+
+    /* botoes do formulario fixos no rodape da tela enquanto rola */
+    .gml-app .form-container .buttons {
+        position: sticky;
+        bottom: 0;
+        z-index: 5;
+        box-shadow: 0 -6px 16px rgba(15, 23, 42, 0.08);
+    }
+
+    /* ---- janela de detalhes vira painel de baixo para cima */
+    .gml-app .modal-overlay {
+        padding: 0;
+        align-items: flex-end;
+    }
+
+    .gml-app .modal-content,
+    .gml-app .modal-content-lg {
+        width: 100%;
+        max-width: none;
+        max-height: 92vh;
+        border-radius: 16px 16px 0 0;
+        padding: 18px 16px;
+        animation: gm-subir 0.25s ease both;
+    }
+
+    @keyframes gm-subir {
+        from { transform: translateY(30px); opacity: 0; }
+        to { transform: none; opacity: 1; }
+    }
+
+    .gml-app .detalhe-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .gml-app .modal-content .buttons .btn {
+        flex: 1 1 auto;
+    }
+
+    /* avisos ocupam a largura da tela */
+    #gml-toast {
+        left: 12px !important;
+        right: 12px !important;
+        bottom: 12px !important;
+        max-width: none !important;
+        text-align: center;
+    }
+}
+
+@media (max-width: 600px) {
+    .gml-app .header-usuario-nome {
+        display: none;
+    }
+
+    .gml-app .detalhe-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .gml-app .footer {
+        font-size: 0.68rem;
+    }
+}
