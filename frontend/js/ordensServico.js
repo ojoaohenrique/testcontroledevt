@@ -273,7 +273,7 @@
             '  <button type="button" class="btn btn-warning" data-acao="editar" data-id="' + o.id + '">Editar</button>' +
             '  <button type="button" class="btn btn-secondary" data-acao="pdf" data-id="' + o.id + '">PDF</button>' +
             (o.status === 'Concluída' ?
-                '  <button type="button" class="btn btn-success" data-acao="relatorio" data-id="' + o.id + '">📋 Relatório</button>' : '') +
+                '  <button type="button" class="btn btn-success" data-acao="relatorio" data-id="' + o.id + '">Relatório</button>' : '') +
             '  <button type="button" class="btn btn-danger" data-acao="excluir" data-id="' + o.id + '">Excluir</button>' +
             '</div></td>';
 

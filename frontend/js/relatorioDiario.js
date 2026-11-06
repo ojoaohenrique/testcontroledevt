@@ -536,7 +536,7 @@
             badgeStatus +
             '  </div>' +
             '  <button type="button" class="item-os-remover" data-item-acao="remover" ' +
-            'title="Remover esta atividade" aria-label="Remover atividade ' + (index + 1) + '">✕</button>' +
+            'title="Remover esta atividade" aria-label="Remover atividade ' + (index + 1) + '"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>' +
             '  <div class="item-os-grid">' +
             '    <div class="form-group">' +
             '      <label class="required">Ordem de Serviço</label>' +
@@ -568,7 +568,7 @@
             '    </div>' +
             (mostrarMotivo ?
                 '    <div class="form-group item-os-full item-os-alerta">' +
-                '      <label class="required">⚠ Motivo da não conclusão</label>' +
+                '      <label class="required">Motivo da não conclusão</label>' +
                 '      <textarea rows="2" data-item-campo="motivo" placeholder="Explique por que a atividade não foi concluída">' +
                 escaparAtributo(item.motivo) + '</textarea>' +
                 '    </div>' : '') +
@@ -1039,18 +1039,18 @@
         var itensRelatorio = estado.itensPorRelatorio[r.id] || [];
         var linhas = [];
 
-        linhas.push('📋 *RELATÓRIO DIÁRIO — GML*');
-        linhas.push('📅 *Data:* ' + formatarData(r.data));
-        if (r.turno) linhas.push('🕐 *Turno:* ' + r.turno);
-        if (r.equipe) linhas.push('👥 *Equipe:* ' + r.equipe);
-        if (r.responsavel) linhas.push('👤 *Responsável:* ' + r.responsavel);
-        if (r.hora_inicio || r.hora_termino) linhas.push('⏰ *Horário:* ' + textoHorario(r));
+        linhas.push('*RELATÓRIO DIÁRIO — GML*');
+        linhas.push('*Data:* ' + formatarData(r.data));
+        if (r.turno) linhas.push('*Turno:* ' + r.turno);
+        if (r.equipe) linhas.push('*Equipe:* ' + r.equipe);
+        if (r.responsavel) linhas.push('*Responsável:* ' + r.responsavel);
+        if (r.hora_inicio || r.hora_termino) linhas.push('*Horário:* ' + textoHorario(r));
         if (r.autos_infracao_quantidade !== null && r.autos_infracao_quantidade !== undefined && r.autos_infracao_quantidade !== '') {
-            linhas.push('🚨 *Autos de infração:* ' + r.autos_infracao_quantidade);
+            linhas.push('*Autos de infração:* ' + r.autos_infracao_quantidade);
         }
-        if (r.viatura_limpeza) linhas.push('🧼 *Limpeza da viatura:* ' + r.viatura_limpeza);
-        if (r.viatura_alteracoes) linhas.push('🔧 *Alterações na viatura:* ' + r.viatura_alteracoes);
-        if (r.abastecimentos_realizados) linhas.push('⛽ *Nível de combustível recebido:* ' + r.abastecimentos_realizados);
+        if (r.viatura_limpeza) linhas.push('*Limpeza da viatura:* ' + r.viatura_limpeza);
+        if (r.viatura_alteracoes) linhas.push('*Alterações na viatura:* ' + r.viatura_alteracoes);
+        if (r.abastecimentos_realizados) linhas.push('*Nível de combustível recebido:* ' + r.abastecimentos_realizados);
 
         function blocoTexto(titulo, texto) {
             if (!texto) return;
@@ -1087,7 +1087,7 @@
 
         if (r.assinatura_responsavel) {
             linhas.push('');
-            linhas.push('✍️ Assinatura: ' + r.assinatura_responsavel);
+            linhas.push('Assinatura: ' + r.assinatura_responsavel);
         }
 
         return linhas.join('\n');

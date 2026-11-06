@@ -156,7 +156,7 @@
             '<span class="foto-numero">' + numero + '</span>' +
             (nova ? '<span class="foto-nova">nova</span>' : '') +
             '<button type="button" class="foto-remover" title="Remover foto" aria-label="Remover foto ' + numero + '" ' +
-            'data-foto-tipo="' + tipo + '" data-foto-indice="' + indice + '">✕</button>' +
+            'data-foto-tipo="' + tipo + '" data-foto-indice="' + indice + '"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>' +
             '</div>' +
             '<input type="text" class="foto-legenda" maxlength="120" placeholder="Legenda (opcional)" ' +
             'value="' + escapar(legenda) + '" data-foto-tipo="' + tipo + '" data-foto-indice="' + indice + '">' +

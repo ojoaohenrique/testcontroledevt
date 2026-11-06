@@ -1526,3 +1526,113 @@ body.gml-app {
         font-size: 0.68rem;
     }
 }
+
+/* =================================================================
+   ICONES (SVG de linha, no lugar dos emojis)
+   ================================================================= */
+.ico {
+    width: 1em;
+    height: 1em;
+    flex-shrink: 0;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.gml-app .sidebar-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    opacity: 0.85;
+}
+
+.gml-app .sidebar-icon .ico {
+    width: 20px;
+    height: 20px;
+}
+
+.gml-app .sidebar-link.active .sidebar-icon,
+.gml-app .sidebar-link:hover .sidebar-icon {
+    opacity: 1;
+}
+
+.gml-app .sidebar-link.active .sidebar-icon {
+    color: var(--gm-dourado);
+}
+
+.sidebar-toggle .ico {
+    width: 22px;
+    height: 22px;
+}
+
+.foto-remover {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.foto-remover .ico {
+    width: 15px;
+    height: 15px;
+    stroke-width: 2.6;
+}
+
+button .ico {
+    width: 16px;
+    height: 16px;
+}
+
+/* Cartoes do painel com icone na cor do cartao */
+.gml-app .stat-card .stat-icon {
+    position: absolute;
+    right: 14px;
+    top: 14px;
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--cor);
+    background: rgba(29, 78, 163, 0.08);
+    background: color-mix(in srgb, var(--cor) 12%, #fff);
+}
+
+.gml-app .stat-card .stat-icon .ico {
+    width: 19px;
+    height: 19px;
+}
+
+.gml-app .stat-card:has(.stat-icon)::after {
+    display: none;
+}
+
+.gml-app .stat-card:has(.stat-icon) .stat-label {
+    padding-right: 44px;
+    min-height: 2.6em;
+}
+
+@media (max-width: 768px) {
+    .gml-app .stat-card .stat-icon {
+        width: 30px;
+        height: 30px;
+        right: 10px;
+        top: 10px;
+        border-radius: 8px;
+    }
+
+    .gml-app .stat-card .stat-icon .ico {
+        width: 16px;
+        height: 16px;
+    }
+
+    .gml-app .stat-card:has(.stat-icon) .stat-label {
+        padding-right: 34px;
+    }
+}
+
+.item-os-remover {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
