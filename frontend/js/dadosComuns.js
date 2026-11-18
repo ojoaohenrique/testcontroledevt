@@ -5,6 +5,7 @@
         VIATURAS: [
             { value: 'Nissan Frontier 0110', label: 'Nissan Frontier 0110' },
             { value: 'Chevrolet S10 0111', label: 'Chevrolet S10 0111' },
+            { value: 'Fiat Pulse 0112', label: 'Fiat Pulse 0112' },
             { value: 'Vectra 0109', label: 'Vectra 0109' },
             { value: 'MOTO 1350 HARLEY DAVIDSON 0107', label: 'MOTO GM07' },
         ],
