@@ -134,14 +134,19 @@
             return total + (isNaN(km) ? 0 : km);
         }, 0);
 
-        // Ordens de servico em andamento
+        // Ordens de servico em andamento: marcadas assim, ou abertas cujo
+        // horario de inicio ja chegou (o campo Status saiu do formulario)
+        var agora = Date.now();
         var ordensAndamento = ordens.filter(function (o) {
-            return o.status === 'Em andamento';
+            if (o.status === 'Em andamento') return true;
+            return o.status === 'Aberta' && o.data_hora_inicio &&
+                new Date(o.data_hora_inicio).getTime() <= agora;
         }).length;
 
-        // Relatorios diarios enviados (enviado ou aprovado)
+        // Relatorios diarios registrados no mes atual
+        var mesAtual = hoje.slice(0, 7);
         var relatoriosEnviados = relatorios.filter(function (r) {
-            return r.status === 'Enviado' || r.status === 'Aprovado';
+            return String(r.data || '').slice(0, 7) === mesAtual;
         }).length;
 
         definirTexto('cardViaturasEmServico', emServico);

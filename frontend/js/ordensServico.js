@@ -189,14 +189,14 @@
         var viatura = valorDe('filtroViatura');
 
         estado.filtrados = estado.registros.filter(function (o) {
-            if (status && o.status !== status) return false;
+            if (status && statusExibido(o) !== status) return false;
             if (data && o.data !== data) return false;
             if (equipe && o.equipe !== equipe) return false;
             if (viatura && o.viatura !== viatura) return false;
             if (termo) {
                 var alvo = [
                     o.numero_ordem, o.solicitante, o.setor, o.local,
-                    o.tipo_servico, o.descricao, o.status,
+                    o.tipo_servico, o.descricao, statusExibido(o),
                     o.viatura, o.equipe,
                 ].join(' ').toLowerCase();
                 if (alvo.indexOf(termo) < 0) return false;
@@ -266,8 +266,8 @@
             '<td>' + escapar(o.equipe || '-') + '</td>' +
             '<td><span class="status-badge ' + classePrioridade(o.prioridade) + '">' +
             escapar(o.prioridade) + '</span></td>' +
-            '<td><span class="status-badge ' + classeStatus(o.status) + '">' +
-            escapar(o.status) + '</span></td>' +
+            '<td><span class="status-badge ' + classeStatus(statusExibido(o)) + '">' +
+            escapar(statusExibido(o)) + '</span></td>' +
             '<td><div class="acoes-tabela">' +
             '  <button type="button" class="btn btn-info" data-acao="ver" data-id="' + o.id + '">Ver</button>' +
             '  <button type="button" class="btn btn-warning" data-acao="editar" data-id="' + o.id + '">Editar</button>' +
@@ -278,6 +278,17 @@
             '</div></td>';
 
         return tr;
+    }
+
+    // Status mostrado na tela: uma O.S. "Aberta" cujo horario de inicio
+    // ja chegou aparece como "Em andamento" (o campo Status saiu do
+    // formulario; "Concluída" vem do botao Finalizar).
+    function statusExibido(o) {
+        if (o && o.status === 'Aberta' && o.data_hora_inicio &&
+            new Date(o.data_hora_inicio).getTime() <= Date.now()) {
+            return 'Em andamento';
+        }
+        return o ? o.status : '';
     }
 
     function classeStatus(status) {
@@ -304,9 +315,10 @@
         var abertas = 0, andamento = 0, concluidas = 0;
 
         estado.registros.forEach(function (o) {
-            if (o.status === 'Aberta') abertas++;
-            else if (o.status === 'Em andamento') andamento++;
-            else if (o.status === 'Concluída') concluidas++;
+            var st = statusExibido(o);
+            if (st === 'Aberta') abertas++;
+            else if (st === 'Em andamento') andamento++;
+            else if (st === 'Concluída') concluidas++;
         });
 
         definirTexto('contadorAbertas', abertas);
@@ -548,7 +560,7 @@
         conteudo.innerHTML =
             '<div class="detalhe-grid">' +
             item('Número', o.numero_ordem) +
-            item('Status', o.status) +
+            item('Status', statusExibido(o)) +
             item('Prioridade', o.prioridade) +
             item('Solicitante', o.solicitante) +
             item('Setor', o.setor) +
@@ -604,7 +616,7 @@
                 { label: 'Solicitante', valor: o.solicitante },
                 { label: 'Setor', valor: o.setor },
                 { label: 'Prioridade', valor: o.prioridade },
-                { label: 'Status', valor: o.status },
+                { label: 'Status', valor: statusExibido(o) },
                 { label: 'Tipo de serviço', valor: o.tipo_servico },
                 { label: 'Local', valor: o.local || '-' },
             ]) + '</div>' +

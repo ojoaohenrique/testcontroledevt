@@ -5,6 +5,11 @@ function initLoginPage() {
     const erroEl = document.getElementById("loginErro");
     if (!form) return;
 
+    if (/[?&]expirou=1/.test(window.location.search) && erroEl) {
+        erroEl.textContent = "Sua sessão expirou. Entre novamente.";
+        erroEl.style.display = "block";
+    }
+
     form.addEventListener("submit", async function (event) {
         event.preventDefault();
         const email = form.email.value.trim();
@@ -74,6 +79,21 @@ function requireAuth() {
     const auth = getStoredAuth();
     if (!auth || !auth.access_token) {
         window.location.href = "login.html";
+        return auth;
+    }
+
+    // Confere a sessao real do Supabase: se o login expirou, os dados
+    // protegidos viriam vazios. Nesse caso volta para a tela de login.
+    try {
+        getSupabase().auth.getSession().then(function (resultado) {
+            const sessao = resultado && resultado.data ? resultado.data.session : null;
+            if (!sessao) {
+                window.localStorage.removeItem("gml_auth");
+                window.location.href = "login.html?expirou=1";
+            }
+        });
+    } catch (e) {
+        console.warn("Nao foi possivel conferir a sessao:", e);
     }
     return auth;
 }
