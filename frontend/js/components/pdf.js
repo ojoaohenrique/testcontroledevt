@@ -139,23 +139,52 @@
         janela.document.write(html);
         janela.document.close();
 
-        // Aguarda a renderizacao antes de abrir a caixa de impressao
-        janela.onload = function () {
-            janela.focus();
-            janela.print();
-        };
-        setTimeout(function () {
+        // Abre a impressao UMA vez, depois que as imagens (fotos) carregarem
+        var impresso = false;
+        function imprimir() {
+            if (impresso) return;
+            impresso = true;
             try {
                 janela.focus();
                 janela.print();
             } catch (e) {
                 console.warn('Nao foi possivel abrir a impressao automaticamente.', e);
             }
-        }, 500);
+        }
+        var imagens = Array.prototype.slice.call(janela.document.images || []);
+        var pendentes = imagens.filter(function (img) { return !img.complete; });
+        if (pendentes.length === 0) {
+            setTimeout(imprimir, 400);
+        } else {
+            var restantes = pendentes.length;
+            pendentes.forEach(function (img) {
+                img.onload = img.onerror = function () {
+                    restantes--;
+                    if (restantes <= 0) setTimeout(imprimir, 200);
+                };
+            });
+            setTimeout(imprimir, 10000);
+        }
+    }
+
+    // Fotos 2 por linha, com numero e legenda
+    function blocoFotos(titulo, fotos) {
+        fotos = (fotos || []).filter(function (f) { return f && f.url; });
+        if (fotos.length === 0) return '';
+        return '<div class="pdf-secao pdf-fotos"><h2>' + escaparHtml(titulo) + '</h2>' +
+            '<div style="display:flex;flex-wrap:wrap;gap:10px;">' +
+            fotos.map(function (f, i) {
+                return '<div style="width:calc(50% - 5px);text-align:center;page-break-inside:avoid;">' +
+                    '<img src="' + escaparHtml(f.url) + '" style="max-width:100%;max-height:240px;border:1px solid #ccc;">' +
+                    '<div style="font-size:11px;margin-top:3px;">Foto ' + (i + 1) +
+                    (f.legenda ? ' – ' + escaparHtml(f.legenda) : '') + '</div></div>';
+            }).join('') +
+            '</div></div>';
     }
 
     window.GML_PDF = {
         gerar: gerarPdf,
+        blocoFotos: blocoFotos,
         blocoGrid: blocoGrid,
         blocoTexto: blocoTexto,
         blocoTabela: blocoTabela,

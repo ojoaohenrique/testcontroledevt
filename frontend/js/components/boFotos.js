@@ -8,7 +8,12 @@
     //  [{ path: 'fotos/<id>.jpg', nome: 'IMG_123.jpg', legenda: 'Frente do veículo' }]
     // ===============================================================
 
-    var BUCKET = 'bo-fotos';
+    // Configuracao opcional por pagina (ex.: Relatorio Diario):
+    // window.GML_FOTOS_CONFIG = { prefixo: 'relatorios/', documento: 'relatório' }
+    var CONFIG = window.GML_FOTOS_CONFIG || {};
+    var BUCKET = CONFIG.bucket || 'bo-fotos';
+    var PREFIXO = CONFIG.prefixo || 'fotos/';
+    var DOCUMENTO = CONFIG.documento || 'A.R.V.C';
     var MAX_FOTOS = 10;
     var LADO_MAXIMO = 1600;   // px - reduz fotos de celular antes de enviar
     var QUALIDADE_JPEG = 0.82;
@@ -107,7 +112,7 @@
     // Storage
     // ---------------------------------------------------------------
     async function enviarBlob(blob, nome) {
-        var path = 'fotos/' + idAleatorio() + '.jpg';
+        var path = PREFIXO + idAleatorio() + '.jpg';
         var res = await storage().upload(path, blob, { contentType: 'image/jpeg', upsert: false });
         if (res.error) throw new Error(explicarErro(res.error));
         return { path: path, nome: nome };
@@ -140,7 +145,7 @@
         if (!info) return;
         var n = form.existentes.length + form.novas.length;
         var texto = n === 0
-            ? 'Nenhuma foto adicionada. Até ' + MAX_FOTOS + ' fotos por A.R.V.C.'
+            ? 'Nenhuma foto adicionada. Até ' + MAX_FOTOS + ' fotos por ' + DOCUMENTO + '.'
             : n + ' de ' + MAX_FOTOS + ' fotos';
         if (form.processando > 0) texto += ' · preparando ' + form.processando + '...';
         info.textContent = texto;
@@ -201,11 +206,11 @@
 
         var vagas = MAX_FOTOS - total();
         if (vagas <= 0) {
-            mostrarToast('Limite de ' + MAX_FOTOS + ' fotos por A.R.V.C.', 'warning');
+            mostrarToast('Limite de ' + MAX_FOTOS + ' fotos por ' + DOCUMENTO + '.', 'warning');
             return;
         }
         if (arquivos.length > vagas) {
-            mostrarToast('Limite de ' + MAX_FOTOS + ' fotos por A.R.V.C. ' +
+            mostrarToast('Limite de ' + MAX_FOTOS + ' fotos por ' + DOCUMENTO + '. ' +
                 (arquivos.length - vagas) + ' não foram adicionadas.', 'warning');
             arquivos = arquivos.slice(0, vagas);
         }

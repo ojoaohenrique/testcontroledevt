@@ -25,6 +25,9 @@
             { value: 'Maik', label: 'Maik' },
             { value: 'Leandro', label: 'Leandro' },
             { value: 'Ferreira', label: 'Ferreira' },
+            { value: 'Duarte', label: 'Duarte' },
+            { value: 'Luiz', label: 'Luiz' },
+            { value: 'Jacques', label: 'Jacques' },
         ],
 
         EQUIPES: [

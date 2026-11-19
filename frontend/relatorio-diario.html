@@ -175,6 +175,23 @@
                                     <textarea id="observacoes" name="observacoes" rows="2"></textarea>
                                 </div>
 
+                                <div class="form-group form-group-full-width">
+                                    <label>Fotos (opcional)</label>
+                                    <div class="fotos-campo">
+                                        <div class="fotos-cabecalho">
+                                            <div class="fotos-acoes">
+                                                <label for="fotosCamera" class="fotos-botao fotos-botao-camera">Tirar foto</label>
+                                                <label for="fotosInput" class="fotos-botao">Escolher fotos</label>
+                                            </div>
+                                            <p class="fotos-dica">ou arraste as fotos para cá · JPG ou PNG · até 10 fotos</p>
+                                        </div>
+                                        <input type="file" id="fotosCamera" accept="image/*" capture="environment" hidden>
+                                        <input type="file" id="fotosInput" accept="image/*" multiple hidden>
+                                        <p id="fotosInfo" class="fotos-info">Nenhuma foto adicionada.</p>
+                                        <div id="fotosPreview" class="fotos-grid"></div>
+                                    </div>
+                                </div>
+
                                 <p id="formErro" class="form-erro" style="display:none;"></p>
                             </div>
 
@@ -287,6 +304,10 @@
     <script src="js/dadosComuns.js"></script>
     <script src="js/components/layout.js"></script>
     <script src="js/components/pdf.js"></script>
+    <script>
+        window.GML_FOTOS_CONFIG = { prefixo: 'relatorios/', documento: 'relatório' };
+    </script>
+    <script src="js/components/boFotos.js"></script>
 
     <!-- 4º: Lógica da página -->
     <script src="js/relatorioDiario.js"></script>

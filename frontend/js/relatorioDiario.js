@@ -90,9 +90,13 @@
                 setTimeout(function () {
                     limparEdicao();
                     aplicarValoresPadrao();
+                    if (window.GML_BO_FOTOS) GML_BO_FOTOS.limpar();
                 }, 0);
             });
         }
+
+        // Fotos (opcional)
+        if (window.GML_BO_FOTOS) GML_BO_FOTOS.init();
 
         document.getElementById('btnCancelarEdicao')
             ?.addEventListener('click', function () {
@@ -679,6 +683,17 @@
             var supabase = getSupabase();
             var resultado;
 
+            // Fotos (opcional): envia as novas antes de gravar o relatorio
+            if (window.GML_BO_FOTOS) {
+                if (GML_BO_FOTOS.emProcessamento()) {
+                    throw new Error('Aguarde as fotos terminarem de ser preparadas.');
+                }
+                payload.fotos = await GML_BO_FOTOS.prepararParaSalvar(function (atual, total) {
+                    btn.textContent = 'Enviando foto ' + atual + ' de ' + total + '...';
+                });
+                btn.textContent = 'Salvando...';
+            }
+
             if (estado.editandoId) {
                 resultado = await supabase
                     .from('relatorios_diarios')
@@ -714,6 +729,8 @@
                 if (itensInsercao.error) throw itensInsercao.error;
             }
 
+            if (window.GML_BO_FOTOS) await GML_BO_FOTOS.concluirSalvamento();
+
             mostrarToast(estado.editandoId
                 ? 'Relatório atualizado com sucesso!'
                 : 'Relatório criado com sucesso!', 'success');
@@ -724,9 +741,10 @@
             await carregarRelatorios();
         } catch (err) {
             console.error('Erro ao salvar relatório:', err);
-            erroEl.textContent = 'Erro ao salvar: ' + err.message;
+            var motivo = window.GML_BO_FOTOS ? GML_BO_FOTOS.explicarErro(err) : err.message;
+            erroEl.textContent = 'Erro ao salvar: ' + motivo;
             erroEl.style.display = 'block';
-            mostrarToast('Erro ao salvar relatório: ' + err.message, 'error');
+            mostrarToast('Erro ao salvar relatório: ' + motivo, 'error');
         } finally {
             btn.disabled = false;
             btn.textContent = estado.editandoId ? 'Atualizar Relatório' : 'Salvar Relatório';
@@ -798,6 +816,7 @@
         definirValor('turno', r.turno || '');
         definirValor('hora_inicio', (r.hora_inicio || '').slice(0, 5));
         definirValor('hora_termino', (r.hora_termino || '').slice(0, 5));
+        if (window.GML_BO_FOTOS) GML_BO_FOTOS.carregarNoFormulario(r.fotos);
         definirValor('equipe', r.equipe || '');
         definirValor('responsavel', r.responsavel || '');
         definirValor('bairros_patrulhados', r.bairros_patrulhados || '');
@@ -873,6 +892,10 @@
 
             if (resultado.error) throw resultado.error;
 
+            if (window.GML_BO_FOTOS && Array.isArray(r.fotos) && r.fotos.length) {
+                await GML_BO_FOTOS.apagar(r.fotos.map(function (f) { return f.path; }));
+            }
+
             if (estado.editandoId === id) {
                 document.getElementById('relatorioForm').reset();
                 limparEdicao();
@@ -919,7 +942,22 @@
             (r.viatura_alteracoes === 'Com alterações'
                 ? bloco('Descrição das alterações na viatura', r.alteracoes_viaturas)
                 : '') +
-            bloco('Observações', r.observacoes);
+            bloco('Observações', r.observacoes) +
+            '<h4 style="margin:12px 0 6px;color:#0056b3;">Fotos</h4>' +
+            '<div id="detalheFotos"></div>';
+
+        if (window.GML_BO_FOTOS) {
+            GML_BO_FOTOS.renderDetalhe(document.getElementById('detalheFotos'), r.fotos);
+            // Guarda os links das fotos para o PDF
+            estado.urlsFotos = estado.urlsFotos || {};
+            if (Array.isArray(r.fotos) && r.fotos.length) {
+                GML_BO_FOTOS.urlsAssinadas(r.fotos).then(function (urls) {
+                    estado.urlsFotos[r.id] = r.fotos.map(function (f, i) {
+                        return { url: urls[i], legenda: f.legenda || '' };
+                    });
+                }).catch(function () { /* PDF sai sem fotos */ });
+            }
+        }
 
         var btnPdf = document.getElementById('detalhePdfBtn');
         btnPdf.onclick = function () { gerarPdfRelatorio(id); };
@@ -1017,7 +1055,8 @@
             (r.viatura_alteracoes === 'Com alterações'
                 ? GML_PDF.blocoTexto('Descrição das alterações encontradas na viatura', r.alteracoes_viaturas)
                 : '') +
-            GML_PDF.blocoTexto('Observações', r.observacoes);
+            GML_PDF.blocoTexto('Observações', r.observacoes) +
+            (GML_PDF.blocoFotos ? GML_PDF.blocoFotos('Fotos', (estado.urlsFotos || {})[r.id]) : '');
 
         GML_PDF.gerar({
             titulo: 'RELATÓRIO DIÁRIO DE SERVIÇO',
