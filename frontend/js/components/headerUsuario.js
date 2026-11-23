@@ -8,7 +8,7 @@ function renderHeaderUsuario() {
     container.innerHTML = `
         <div class="header-usuario">
             <div class="header-usuario-info">
-                <span class="header-usuario-nome">${email}</span>
+                <span class="header-usuario-nome"></span>
             </div>
             <nav class="header-usuario-nav">
                 <a href="dashboard.html">Dashboard</a>
@@ -17,6 +17,9 @@ function renderHeaderUsuario() {
             </nav>
         </div>
     `;
+
+    const nomeEl = container.querySelector(".header-usuario-nome");
+    if (nomeEl) nomeEl.textContent = email;
 
     const btnLogout = document.getElementById("btnLogout");
     if (btnLogout) {

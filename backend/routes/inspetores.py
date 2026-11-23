@@ -1,9 +1,13 @@
 from flask import Blueprint, jsonify, request
 
+from backend.services.auth_service import AuthError, get_current_user_id
 from backend.supabase_client import get_supabase_client
 
 # Blueprint dedicado à rota de inspetores
 inspetores_bp = Blueprint("inspetores", __name__)
+
+# Somente estes campos podem ser gravados pela API
+CAMPOS_PERMITIDOS = {"nome", "matricula", "turno"}
 
 
 def listar_inspetores():
@@ -32,22 +36,22 @@ def adicionar_inspetor(data):
 def get_inspetores():
     """
     GET /inspetores
-    Lista todos os inspetores cadastrados no Supabase.
+    Lista todos os inspetores cadastrados (exige login).
     """
     try:
-        inspetores = listar_inspetores()
-        return jsonify(inspetores), 200
-    except ConnectionError as conn_err:
-        return jsonify({"error": str(conn_err)}), 503  # Service Unavailable
-    except Exception as exc:
-        return jsonify({"error": str(exc)}), 500
+        get_current_user_id(request)
+    except AuthError:
+        return jsonify({"error": "Não autorizado."}), 401
+    try:
+        return jsonify(listar_inspetores()), 200
+    except Exception:
+        return jsonify({"error": "Erro interno."}), 500
 
 
 @inspetores_bp.route("/inspetores", methods=["POST"])
 def post_inspetor():
     """
-    POST /inspetores
-    Insere um novo inspetor na tabela.
+    POST /inspetores  (exige login)
     Exemplo de corpo JSON:
     {
       "nome": "INSP MAIK",
@@ -56,13 +60,22 @@ def post_inspetor():
     }
     """
     try:
-        payload = request.get_json(force=True) or {}
-        if not payload:
-            return jsonify({"error": "Corpo da requisição vazio."}), 400
+        get_current_user_id(request)
+    except AuthError:
+        return jsonify({"error": "Não autorizado."}), 401
+    try:
+        payload = request.get_json(silent=True)
+        if not isinstance(payload, dict):
+            return jsonify({"error": "Corpo inválido."}), 400
 
-        novo = adicionar_inspetor(payload)
-        return jsonify(novo), 201
-    except ConnectionError as conn_err:
-        return jsonify({"error": str(conn_err)}), 503  # Service Unavailable
-    except Exception as exc:
-        return jsonify({"error": str(exc)}), 500
+        dados = {
+            k: str(v).strip()[:120]
+            for k, v in payload.items()
+            if k in CAMPOS_PERMITIDOS and v is not None
+        }
+        if not dados.get("nome"):
+            return jsonify({"error": "Campo 'nome' é obrigatório."}), 400
+
+        return jsonify(adicionar_inspetor(dados)), 201
+    except Exception:
+        return jsonify({"error": "Erro interno."}), 500

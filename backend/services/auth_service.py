@@ -48,4 +48,4 @@ def get_current_user_id(request: Request) -> str:
             raise AuthError("Usuário não identificado no token.")
         return user.id
     except Exception as exc:
-        raise AuthError(f"Token inválido ou expirado. Detalhes: {exc}")
+        raise AuthError("Token inválido ou expirado.") from exc

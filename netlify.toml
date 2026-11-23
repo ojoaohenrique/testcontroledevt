@@ -5,3 +5,13 @@
   from = "/"
   to = "/login.html"
   status = 302
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://ysrexztknpgrsoqioxjf.supabase.co; connect-src 'self' https://ysrexztknpgrsoqioxjf.supabase.co wss://ysrexztknpgrsoqioxjf.supabase.co https://cdn.jsdelivr.net; font-src 'self' data:; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
+    X-Content-Type-Options = "nosniff"
+    X-Frame-Options = "DENY"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "geolocation=(), microphone=(), camera=(self)"
+    Strict-Transport-Security = "max-age=31536000; includeSubDomains"

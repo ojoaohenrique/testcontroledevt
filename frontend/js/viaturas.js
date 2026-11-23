@@ -1,5 +1,23 @@
-﻿(function () {
+(function () {
     'use strict';
+
+    // Escapa texto vindo do banco antes de inserir em HTML (evita XSS)
+    function esc(valor) {
+        if (valor === null || valor === undefined) return '';
+        return String(valor)
+            .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    }
+
+    // Aceita somente links de foto https (bloqueia javascript:, data: etc.)
+    function urlSegura(url) {
+        try {
+            const u = new URL(String(url), window.location.href);
+            return u.protocol === 'https:' ? u.href : null;
+        } catch (e) {
+            return null;
+        }
+    }
 
     // ===============================================================
     //  Controle de Viaturas GML
@@ -195,18 +213,18 @@
         const dataHora = new Date(registro.data_saida).toLocaleString('pt-BR');
 
         tr.innerHTML = `
-            <td>${registro.viatura}</td>
+            <td>${esc(registro.viatura)}</td>
             <td>${dataHora}</td>
-            <td>${registro.km_saida}</td>
-            <td>${registro.motorista}</td>
-            <td>${registro.protocolo ?? '-'}</td>
+            <td>${esc(registro.km_saida)}</td>
+            <td>${esc(registro.motorista)}</td>
+            <td>${esc(registro.protocolo ?? '-')}</td>
             <td class="cell-data-chegada">-</td>
             <td class="cell-km-chegada">-</td>
             <td class="cell-km-rodado">-</td>
             <td class="cell-fotos">-</td>
             <td class="cell-obs">-</td>
             <td>
-                <button class="btn btn-success btn-volta" data-row-id="row-${registro.id}">
+                <button class="btn btn-success btn-volta" data-row-id="row-${esc(registro.id)}">
                     Registrar Volta
                 </button>
             </td>
@@ -284,7 +302,8 @@
 
             if (fotoInput.files.length > 0) {
                 for (const file of fotoInput.files) {
-                    const nomeArquivo = `viaturas/${registroId}/${Date.now()}_${file.name}`;
+                    const nomeSeguro = String(file.name || 'foto').replace(/[^a-zA-Z0-9._-]/g, '_').slice(-80);
+                    const nomeArquivo = `viaturas/${registroId}/${Date.now()}_${nomeSeguro}`;
                     const { data: uploadData, error: uploadError } = await supabase.storage
                         .from('fotos-viaturas')
                         .upload(nomeArquivo, file, { upsert: true });
@@ -321,10 +340,11 @@
             const fotoCell = linha.querySelector('.cell-fotos');
             fotoCell.innerHTML = '';
             if (fotosUrls.length > 0) {
-                fotosUrls.forEach(url => {
+                fotosUrls.map(urlSegura).filter(Boolean).forEach(url => {
                     const a = document.createElement('a');
                     a.href = url;
                     a.target = '_blank';
+                    a.rel = 'noopener noreferrer';
                     const img = document.createElement('img');
                     img.src = url;
                     img.style.cssText = 'width:60px;height:60px;object-fit:cover;margin:2px;border-radius:4px;border:1px solid #ddd;cursor:pointer;';
@@ -436,13 +456,13 @@
 
         const tr = document.createElement('tr');
         tr.innerHTML = `
-            <td>${registro.viatura}</td>
-            <td>${dataStr}</td>
-            <td>${registro.km_abastecimento}</td>
-            <td>${registro.km_atual}</td>
-            <td>${registro.litros}</td>
-            <td>${registro.km_rodado}</td>
-            <td>${registro.media_km_l ? registro.media_km_l.toFixed(2) + ' KM/L' : '-'}</td>
+            <td>${esc(registro.viatura)}</td>
+            <td>${esc(dataStr)}</td>
+            <td>${esc(registro.km_abastecimento)}</td>
+            <td>${esc(registro.km_atual)}</td>
+            <td>${esc(registro.litros)}</td>
+            <td>${esc(registro.km_rodado)}</td>
+            <td>${registro.media_km_l ? esc(Number(registro.media_km_l).toFixed(2)) + ' KM/L' : '-'}</td>
         `;
         tbody.insertBefore(tr, tbody.firstChild);
     }
@@ -502,24 +522,25 @@
         // Fotos
         let fotosHtml = 'Sem foto';
         if (registro.fotos && registro.fotos.length > 0) {
-            fotosHtml = registro.fotos.map(url =>
-                `<a href="${url}" target="_blank">
-                    <img src="${url}" style="width:60px;height:60px;object-fit:cover;margin:2px;border-radius:4px;border:1px solid #ddd;cursor:pointer;">
+            const fotosValidas = registro.fotos.map(urlSegura).filter(Boolean);
+            if (fotosValidas.length > 0) fotosHtml = fotosValidas.map(url =>
+                `<a href="${esc(url)}" target="_blank" rel="noopener noreferrer">
+                    <img src="${esc(url)}" alt="Foto da viatura" style="width:60px;height:60px;object-fit:cover;margin:2px;border-radius:4px;border:1px solid #ddd;cursor:pointer;">
                 </a>`
             ).join('');
         }
 
         tr.innerHTML = `
-            <td>${registro.viatura}</td>
+            <td>${esc(registro.viatura)}</td>
             <td>${dataHora}</td>
-            <td>${registro.km_saida}</td>
-            <td>${registro.motorista}</td>
-            <td>${registro.protocolo ?? '-'}</td>
+            <td>${esc(registro.km_saida)}</td>
+            <td>${esc(registro.motorista)}</td>
+            <td>${esc(registro.protocolo ?? '-')}</td>
             <td class="cell-data-chegada">${dataHoraChegada}</td>
-            <td class="cell-km-chegada">${registro.km_chegada ?? '-'}</td>
-            <td class="cell-km-rodado">${kmRodado?.toFixed(1) ?? '-'}</td>
+            <td class="cell-km-chegada">${esc(registro.km_chegada ?? '-')}</td>
+            <td class="cell-km-rodado">${Number.isFinite(Number(kmRodado)) ? Number(kmRodado).toFixed(1) : '-'}</td>
             <td class="cell-fotos">${fotosHtml}</td>
-            <td class="cell-obs">${registro.observacoes ?? 'Sem observações'}</td>
+            <td class="cell-obs">${esc(registro.observacoes ?? 'Sem observações')}</td>
             <td><button class="btn btn-secondary" disabled>Finalizado</button></td>
         `;
 

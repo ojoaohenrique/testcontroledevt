@@ -47,3 +47,10 @@ npm-debug.log*
 # Build outputs
 dist/
 build/
+
+# Arquivos com chaves (nunca enviar ao GitHub)
+env_novo.txt
+**/env_novo.txt
+*.env.txt
+*.key
+*.pem

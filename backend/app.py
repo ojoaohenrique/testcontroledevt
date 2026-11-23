@@ -1,3 +1,4 @@
+import json
 import os
 
 from dotenv import load_dotenv
@@ -25,11 +26,22 @@ def create_app() -> Flask:
 
     app.config["JSON_SORT_KEYS"] = False
 
-    CORS(
-        app,
-        resources={r"/api/*": {"origins": "*"}},
-        supports_credentials=True,
-    )
+    app.config["MAX_CONTENT_LENGTH"] = 2 * 1024 * 1024  # corpo de no máximo 2 MB
+
+    # CORS: só as origens listadas em ALLOWED_ORIGINS (separadas por vírgula).
+    # Sem a variável, nenhuma origem externa é liberada (o mesmo domínio funciona).
+    origens = [o.strip() for o in os.getenv("ALLOWED_ORIGINS", "").split(",") if o.strip()]
+    if origens:
+        CORS(app, resources={r"/api/*": {"origins": origens}}, supports_credentials=False)
+
+    @app.after_request
+    def cabecalhos_seguranca(resp):
+        resp.headers.setdefault("X-Content-Type-Options", "nosniff")
+        resp.headers.setdefault("X-Frame-Options", "DENY")
+        resp.headers.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")
+        resp.headers.setdefault("Permissions-Policy", "geolocation=(), microphone=(), camera=(self)")
+        resp.headers.setdefault("Strict-Transport-Security", "max-age=31536000; includeSubDomains")
+        return resp
 
     # Inicializa conexão com banco (Supabase Postgres)
     init_db()
@@ -51,8 +63,8 @@ def create_app() -> Flask:
             db.execute(text("SELECT 1"))
             db.close()
             return jsonify({"status": "ok"}), 200
-        except Exception as exc:
-            return jsonify({"status": "error", "detail": str(exc)}), 500
+        except Exception:
+            return jsonify({"status": "error"}), 500
 
     @app.route("/js/env.js")
     def env_js():
@@ -60,8 +72,8 @@ def create_app() -> Flask:
         # Note: Ensure the SUPABASE_ANON_KEY environment variable is set to the public 'anon' key,
         # as this will be exposed on the client side.
         content = f"""
-window.ENV_SUPABASE_URL = "{os.getenv('SUPABASE_URL', '')}";
-window.ENV_SUPABASE_ANON_KEY = "{os.getenv('SUPABASE_ANON_KEY', '')}";
+window.ENV_SUPABASE_URL = {json.dumps(os.getenv('SUPABASE_URL', ''))};
+window.ENV_SUPABASE_ANON_KEY = {json.dumps(os.getenv('SUPABASE_ANON_KEY', ''))};
 window.ENV_API_BASE_URL = "/api";
 """
         return Response(content, mimetype='application/javascript')

@@ -11,6 +11,10 @@ viaturas_bp = Blueprint("viaturas", __name__)
 
 @viaturas_bp.route("/viaturas", methods=["GET"])
 def listar_viaturas():
+    try:
+        get_current_user_id(request)
+    except AuthError as exc:
+        return jsonify({"error": str(exc)}), 401
     db = SessionLocal()
     try:
         viaturas = listar_viaturas_ativas(db)

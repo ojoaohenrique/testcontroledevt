@@ -41,16 +41,9 @@
 
     // Initialize configuration
     function init() {
-        // Try to load from localStorage (for development/testing)
-        try {
-            const storedConfig = localStorage.getItem('gml_config');
-            if (storedConfig) {
-                const parsed = JSON.parse(storedConfig);
-                Object.assign(config, parsed);
-            }
-        } catch (e) {
-            console.warn('Could not load config from localStorage');
-        }
+        // A configuracao NAO e mais lida do localStorage: isso permitia que um
+        // script malicioso trocasse o endereco do banco de forma persistente.
+        try { localStorage.removeItem('gml_config'); } catch (e) { /* ignora */ }
 
         // Expose config globally
         window.APP_CONFIG = config;
