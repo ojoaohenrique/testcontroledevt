@@ -28,6 +28,7 @@
             { value: 'Duarte', label: 'Duarte' },
             { value: 'Luiz', label: 'Luiz' },
             { value: 'Jacques', label: 'Jacques' },
+            { value: 'Arlon', label: 'Arlon' },
         ],
 
         EQUIPES: [
