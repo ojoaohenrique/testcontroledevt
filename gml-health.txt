@@ -1,4 +1,0 @@
-{
-  "detail": "DB n\u00e3o configurado ou indispon\u00edvel.",
-  "status": "error"
-}

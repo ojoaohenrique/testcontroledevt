@@ -54,3 +54,10 @@ env_novo.txt
 *.env.txt
 *.key
 *.pem
+
+# Lixo de instalação e arquivos temporários
+pip-metadata-*/
+pip-unpack-*/
+tmp*_
+gml-*.txt
+Claude outputs/
